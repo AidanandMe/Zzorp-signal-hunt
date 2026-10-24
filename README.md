@@ -1,6 +1,8 @@
 # 🛸 Zzorp Signal Hunt
 
 > **Tagline:** *An alien investigates human habits.*  
+> **Live Web App (Mobile & Desktop):** **[https://zzorp-signal-hunt.onrender.com](https://zzorp-signal-hunt.onrender.com)**  
+> **GitHub Repository:** **[https://github.com/AidanandMe/Zzorp-signal-hunt](https://github.com/AidanandMe/Zzorp-signal-hunt)**  
 > **Encode London 2026 Hackathon MVP**  
 > **Target Tracks:**
 > - 🌍 **The Real World: AI that understands the world around us**
@@ -101,3 +103,10 @@ Open **http://127.0.0.1:8000** in your browser (or mobile device on the same net
 3. **Player-Owned Conclusion:** Type the player's own conclusion into the Field Notebook and save it (`Player Concluded ✓`), demonstrating that Zzorp never tells the player what to think.
 4. **Scan 3 — Epistemic Honesty (`no_signal`):** Scan an ordinary ceramic mug on a wooden desk. Show that Zzorp classifies it as `✨ No signal detected` with no fake mission and zero invented citations.
 5. **Credit-Safe Fallback Drawer:** On Screen 1, expand **🧪 Demo Specimens & `examples/` Folder** to load any image placed in `examples/` or trigger instant, archive-verified demo specimens (`cup`, `banana`, `mug`) if venue Wi-Fi or shared hackathon API credits hiccup.
+
+---
+
+## 🔭 Next Iteration Roadmap
+
+- **Streamlined Kid Mode vs. Explorer/Judge Mode:** While the current MVP surfaces every analytical layer (*What I Can See*, *Possible Interpretation*, *What I Still Don't Know*, *Sources*, and *Verification Trace*) to demonstrate **Gemini 4 Argon's** epistemic honesty and grounding, the next iteration adds a one-tap **Kid Mode** that tucks the analytical breakdowns into a single expandable drawer—leaving just **Zzorp's reaction → 1 simple Mission → the player's own Conclusion**.
+
