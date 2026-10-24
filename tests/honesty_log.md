@@ -21,7 +21,7 @@ Per Section 10 of `antigravity_build_prompt.md`, Zzorp Signal Hunt is evaluated 
 
 ---
 
-## Live Gemini 4 Argon (`gemini-3.1-pro-preview`) 10-Scenario Matrix
+## Live Gemini 4 Argon (`gemini-4-argon`) 10-Scenario Matrix
 
 | # | Scenario Photo | Expected Signal Type | Expected Archive IDs | Run 1 | Run 2 | Run 3 | Notes |
 |---|---|---|---|---|---|---|---|

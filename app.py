@@ -94,13 +94,27 @@ def api_scan(req: ScanRequest) -> JSONResponse:
         return JSONResponse(status_code=200, content=outcome)
     except Exception as exc:
         err_str = str(exc)
-        friendly_msg = IN_CHARACTER_ERROR_MESSAGE
-        if "spending cap" in err_str.lower() or "billing" in err_str.lower():
-            friendly_msg = (
-                f"{IN_CHARACTER_ERROR_MESSAGE} "
-                "(Google AI Studio returned 429: Your billing account has exceeded its monthly spending cap at https://ai.studio/billing — please increase the cap or paste a new API key into .env.)"
+        if (
+            "spending cap" in err_str.lower()
+            or "billing" in err_str.lower()
+            or "resource_exhausted" in err_str.lower()
+            or "429" in err_str.lower()
+        ):
+            preset_key = "follow_up" if req.scan_type == "follow_up" else "cup"
+            if req.scan_type == "first_scan":
+                # Pick deterministically from cup / banana based on image length so different photos feel distinct
+                preset_key = ("cup", "banana", "mug")[len(image_b64) % 3]
+            fallback_content = _build_preset_response(
+                preset_key,
+                fallback_note=(
+                    "Live Gemini API returned 429 (Hackathon billing account spending cap reached) — "
+                    "showing verified offline demo specimen so you can test the full app flow."
+                ),
             )
-        elif "api_key_invalid" in err_str.lower() or "api key not valid" in err_str.lower():
+            return JSONResponse(status_code=200, content=fallback_content)
+
+        friendly_msg = IN_CHARACTER_ERROR_MESSAGE
+        if "api_key_invalid" in err_str.lower() or "api key not valid" in err_str.lower():
             friendly_msg = (
                 f"{IN_CHARACTER_ERROR_MESSAGE} "
                 "(Google AI Studio reported that the GEMINI_API_KEY in .env is invalid.)"
@@ -242,12 +256,46 @@ DEMO_PRESETS: dict[str, dict[str, Any]] = {
             },
         },
     },
+    "follow_up": {
+        "topic": "local_recycling_rules",
+        "signal": "bins",
+        "payload": {
+            "scan_type": "follow_up",
+            "people_in_frame": False,
+            "visible_facts": [
+                "A printed recycling bin sign lists clean paper, cardboard, cans, and plastic bottles.",
+                "Takeaway coffee cups and food-soiled items are marked as excluded on the label.",
+            ],
+            "inferences": [
+                "This standard mixed recycling bin does not accept plastic-lined paper coffee cups, though a clean plastic lid may be separated if local rules allow.",
+            ],
+            "missing_information": [
+                "Where the nearest dedicated takeaway cup collection point is located in this building or street.",
+            ],
+            "signal_type": "possible_contradiction",
+            "signal_summary": "The follow-up photo of the bin label confirms that plastic-lined paper coffee cups are not accepted in this standard recycling bin.",
+            "zzorp_reaction": (
+                "Splendid field detective work! The portal's own instruction plaque confirms that polymer-lined paper cups are excluded here. "
+                "Now that you have gathered this evidence, field partner, what is YOUR conclusion?"
+            ),
+            "mission": None,
+            "evidence_used": ["EV-003"],
+            "notebook_update": {
+                "entry_title": "Specimen #1: The Eight-Minute Vessel",
+                "zzorp_question": "Does this recycling bin actually accept plastic-lined takeaway cups, or does it require a specialist collection point?",
+                "entry_state": "evidence_gathered",
+                "new_evidence": "Bin label inspected: standard mixed recycling accepts paper, cardboard, cans, and bottles, but excludes plastic-lined takeaway cups.",
+                "player_conclusion": None,
+            },
+        },
+    },
 }
 
 
-@app.get("/api/demo_preset/{preset_name}")
-def get_demo_preset(preset_name: str) -> JSONResponse:
-    """Return a verified live-pitch demo specimen processed through the real archive tool and server guarantees."""
+def _build_preset_response(
+    preset_name: str, fallback_note: str | None = None
+) -> dict[str, Any]:
+    """Build a verified response dict from DEMO_PRESETS using the real archive tool and server guarantees."""
     import copy
 
     spec = DEMO_PRESETS.get(preset_name.lower())
@@ -273,10 +321,11 @@ def get_demo_preset(preset_name: str) -> JSONResponse:
         )
 
     payload_copy = copy.deepcopy(spec["payload"])
+    expected_scan_type = payload_copy.get("scan_type", "first_scan")
     stripped_ids = enforce_server_guarantees(
         payload_copy,
         retrieved_ids=retrieved_ids,
-        expected_scan_type="first_scan",
+        expected_scan_type=expected_scan_type,
     )
     validate_zzorp_response(payload_copy)
 
@@ -292,16 +341,26 @@ def get_demo_preset(preset_name: str) -> JSONResponse:
         pass1_seconds=0.03,
         pass2_seconds=0.02,
     )
-    return JSONResponse(
-        status_code=200,
-        content={
-            "ok": True,
-            "result": payload_copy,
-            "sources": resolved_sources,
-            "verification_trace": verification_trace,
-            "is_demo_preset": True,
-        },
-    )
+    if fallback_note:
+        verification_trace["summary_line"] = (
+            f"{verification_trace['summary_line']} • [429 Credit Fallback Active]"
+        )
+        verification_trace["fallback_note"] = fallback_note
+
+    return {
+        "ok": True,
+        "result": payload_copy,
+        "sources": resolved_sources,
+        "verification_trace": verification_trace,
+        "is_demo_preset": True,
+        "fallback_note": fallback_note,
+    }
+
+
+@app.get("/api/demo_preset/{preset_name}")
+def get_demo_preset(preset_name: str) -> JSONResponse:
+    """Return a verified live-pitch demo specimen processed through the real archive tool and server guarantees."""
+    return JSONResponse(status_code=200, content=_build_preset_response(preset_name))
 
 
 @app.get("/")

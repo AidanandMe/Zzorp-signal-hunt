@@ -4,7 +4,7 @@
 > **Encode London 2026 Hackathon MVP**  
 > **Target Tracks:**
 > - 🌍 **The Real World: AI that understands the world around us**
-> - 🧠 **Google DeepMind: Build with Gemini 4 Argon** (`gemini-3.1-pro-preview` via the Interactions API)
+> - 🧠 **Google DeepMind: Build with Gemini 4 Argon** (`gemini-4-argon` via the Interactions API)
 
 ---
 
@@ -21,11 +21,11 @@ Curious, puzzled, and occasionally amused by us, **Zzorp never tells the player 
 
 ---
 
-## 🧠 Why Gemini 4 Argon (`gemini-3.1-pro-preview`)?
+## 🧠 Why Gemini 4 Argon (`gemini-4-argon`)?
 
 Real-world environmental photos are messy and ambiguous. A single photo rarely proves whether a bin accepts plastic-lined cups, why a room's lights are on, or whether a plastic film is locally recyclable.
 
-**Zzorp Signal Hunt** uses **Gemini 4 Argon (`gemini-3.1-pro-preview`)** via `client.interactions.create(...)` with `thinking_level: "medium"` in a strict **two-pass tool-grounded pipeline**:
+**Zzorp Signal Hunt** uses **Gemini 4 Argon (`gemini-4-argon`)** via `client.interactions.create(...)` with `thinking_level: "medium"` in a strict **two-pass tool-grounded pipeline**:
 
 1. **Pass 1 — Visual Observation & Archive Lookup (`scanner.py`)**
    - Receives the browser-resized JPEG (`max 1600px`, EXIF/GPS stripped in `<canvas>`).
@@ -47,7 +47,7 @@ Real-world environmental photos are messy and ambiguous. A single photo rarely p
 Zzorp-Signal-Hunt/
 ├── app.py                      # FastAPI server (/api/scan, /api/examples, /api/demo_preset/*)
 ├── scanner.py                  # Two-pass Gemini 4 Argon pipeline + schema & epistemic guarantees
-├── config.py                   # Model constants (gemini-3.1-pro-preview) & .env key loader
+├── config.py                   # Model constants (gemini-4-argon) & .env key loader
 ├── evidence_tool.py            # Read-only lookup_evidence(topic, signals) & sources_for(ids)
 ├── evidence_archive.json       # Curated 15-entry Earth Evidence Archive (EV-001 to EV-015)
 ├── zzorp_system_prompt.md      # Zzorp's persona, epistemic honesty, and child-safety rules
