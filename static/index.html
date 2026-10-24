@@ -78,6 +78,24 @@
       </div>
       <p class="hero-tagline">Show Zzorp something humans have stopped noticing.</p>
 
+      <!-- Lightweight Game Layer: Signal Points, Badges & Optional Voice Control -->
+      <div class="player-status-bar" aria-label="Field partner progress">
+        <div class="status-pills-left">
+          <button id="headerPointsBtn" type="button" class="score-pill" title="View Signal Points and Badges in your Field Notebook">
+            <span aria-hidden="true">⚡</span>
+            <strong id="headerPointsValue">0</strong>
+            <span>Signal Points</span>
+          </button>
+          <button id="headerBadgesBtn" type="button" class="badge-summary-pill" title="View Badges in your Field Notebook">
+            <span aria-hidden="true">🏅</span>
+            <span id="headerBadgesCount">0 / 5 Badges</span>
+          </button>
+        </div>
+        <button id="voiceToggleBtn" type="button" class="voice-toggle-btn" aria-pressed="false" title="Optional: let Zzorp speak rewards aloud when earned">
+          🔇 Voice: Off
+        </button>
+      </div>
+
       <!-- Navigation Bar between Scanner and Field Notebook -->
       <nav class="mode-nav" aria-label="Primary views">
         <button id="navScannerBtn" type="button" class="nav-tab active">
@@ -95,6 +113,26 @@
     </div>
 
     <main class="main-content">
+      <!-- PLAYFUL CELEBRATION BANNER (Shown when Signal Points or Badges are earned) -->
+      <div id="celebrationBanner" class="celebration-banner hidden" role="status" aria-live="polite">
+        <div class="celebration-top">
+          <div class="celebration-headline-wrap">
+            <span class="celebration-sparkle" aria-hidden="true">🛸✨</span>
+            <strong id="celebrationPointsHeadline" class="celebration-headline">+20 Signal Points!</strong>
+          </div>
+          <div class="celebration-actions">
+            <button id="celebrationSpeakBtn" type="button" class="btn-speak" title="Hear Zzorp announce this reward aloud">
+              🔊 Hear Zzorp
+            </button>
+            <button id="celebrationCloseBtn" type="button" class="celebration-close-btn" aria-label="Dismiss celebration">
+              ✕
+            </button>
+          </div>
+        </div>
+        <div id="celebrationReasonsList" class="celebration-reasons"></div>
+        <div id="celebrationBadgesWrap" class="celebration-badges hidden"></div>
+      </div>
+
       <!-- SCREEN 1: SIGNAL SCANNER -->
       <section id="scannerScreen" class="panel scanner-panel" aria-labelledby="scannerHeading">
         <div class="panel-header">
@@ -199,6 +237,9 @@
               <button type="button" class="btn btn-small btn-outline demo-preset-btn" data-preset="mug">
                 🍵 Plain Ceramic Mug (No Signal)
               </button>
+              <button type="button" class="btn btn-small btn-outline demo-preset-btn" data-preset="follow_up">
+                🔬 Bin Label Follow-up
+              </button>
             </div>
           </div>
         </details>
@@ -259,8 +300,13 @@
         <!-- ZZORP SAYS (Character Card) -->
         <div class="result-card zzorp-says-card">
           <div class="zzorp-card-header">
-            <span class="zzorp-mini-icon" aria-hidden="true">👽</span>
-            <span class="card-eyebrow">ZZORP SAYS</span>
+            <div class="zzorp-card-header-left">
+              <span class="zzorp-mini-icon" aria-hidden="true">👽</span>
+              <span class="card-eyebrow">ZZORP SAYS</span>
+            </div>
+            <button id="speakReactionBtn" type="button" class="btn-speak" title="Hear Zzorp speak this reaction aloud">
+              🔊 Hear Zzorp
+            </button>
           </div>
           <blockquote id="zzorpReaction" class="zzorp-quote"></blockquote>
         </div>
@@ -377,6 +423,20 @@
           <button id="clearNotebookBtn" type="button" class="btn btn-outline btn-small">
             🗑️ Clear Notebook
           </button>
+        </div>
+
+        <!-- SIGNAL POINTS & BADGES SHOWCASE -->
+        <div id="notebookProgressCard" class="notebook-progress-card">
+          <div class="nb-progress-header">
+            <div>
+              <span class="card-eyebrow">🏆 FIELD PARTNER REWARDS</span>
+              <h3 class="nb-progress-title">
+                ⚡ <span id="nbTotalPoints">0</span> Signal Points
+              </h3>
+            </div>
+            <span class="nb-progress-rule-note">Calculated in app code from real investigation milestones</span>
+          </div>
+          <div id="badgesGrid" class="badges-grid" aria-label="Investigation Badges"></div>
         </div>
 
         <div id="notebookEmptyState" class="notebook-empty">

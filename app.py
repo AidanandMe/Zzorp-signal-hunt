@@ -275,8 +275,9 @@ DEMO_PRESETS: dict[str, dict[str, Any]] = {
             "signal_type": "possible_contradiction",
             "signal_summary": "The follow-up photo of the bin label confirms that plastic-lined paper coffee cups are not accepted in this standard recycling bin.",
             "zzorp_reaction": (
-                "Splendid field detective work! The portal's own instruction plaque confirms that polymer-lined paper cups are excluded here. "
-                "Now that you have gathered this evidence, field partner, what is YOUR conclusion?"
+                "AHA! My antennae are doing a victory wiggle over this close-up of the sorting portal's label! "
+                "That cleared up my biggest mystery: standard mixed recycling here explicitly rejects polymer-lined takeaway cups, though the plastic lid can be separated. "
+                "What do YOU think now, field partner?"
             ),
             "mission": None,
             "evidence_used": ["EV-003"],

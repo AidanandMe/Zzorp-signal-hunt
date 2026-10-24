@@ -14,11 +14,145 @@
   const MAX_DIMENSION = 1600;
   const JPEG_QUALITY = 0.85;
   const NOTEBOOK_STORAGE_KEY = "zzorp_field_notebook_v1";
+  const GAME_STORAGE_KEY = "zzorp_game_state_v1";
 
   const WAITING_MESSAGES = [
     "Scanning specimen…",
     "Consulting Earth archive…",
     "Checking whether humans actually know this…",
+  ];
+
+  // Deterministic Signal Points table (calculated strictly in app code, never by the model)
+  const POINT_EVENTS = {
+    first_scan_completed: {
+      points: 10,
+      label: "First scan completed",
+    },
+    follow_up_completed: {
+      points: 20,
+      label: "Follow-up mission completed",
+    },
+    meaningful_new_evidence: {
+      points: 15,
+      label: "Meaningful new evidence gathered",
+    },
+    new_archive_id_bonus: {
+      points: 5,
+      label: "New archive ID cited in follow-up",
+    },
+    interpretation_revised: {
+      points: 10,
+      label: "Zzorp revised interpretation after new evidence",
+    },
+    player_conclusion_saved: {
+      points: 15,
+      label: "Player conclusion saved",
+    },
+    positive_signal_bonus: {
+      points: 5,
+      label: "Positive signal discovered",
+    },
+  };
+
+  // Deterministic Badges evaluated from actual Field Notebook investigation history
+  const BADGE_DEFINITIONS = [
+    {
+      id: "urban_nature_scout",
+      icon: "🌱",
+      name: "Urban Nature Scout",
+      description: "Completes an urban-nature investigation",
+      check: (entries) =>
+        entries.some((e) => {
+          const ev = e.evidence_used || [];
+          if (ev.includes("EV-013") || ev.includes("EV-014")) return true;
+          const text = [
+            e.entry_title,
+            e.signal_summary,
+            ...(e.visible_facts || []),
+            e.new_evidence,
+          ]
+            .filter(Boolean)
+            .join(" ");
+          return /\b(tree|trees|plant|plants|leaf|leaves|garden|grass|moss|soil|flower|park|nature|hedge|paving|paved|concrete)\b/i.test(
+            text
+          );
+        }),
+    },
+    {
+      id: "reuse_detective",
+      icon: "♻️",
+      name: "Reuse Detective",
+      description: "Investigates reuse, repair or recycling",
+      check: (entries) =>
+        entries.some((e) => {
+          const ev = e.evidence_used || [];
+          if (
+            ["EV-001", "EV-002", "EV-003", "EV-006", "EV-009", "EV-015"].some((id) =>
+              ev.includes(id)
+            )
+          ) {
+            return true;
+          }
+          const text = [
+            e.entry_title,
+            e.signal_summary,
+            ...(e.visible_facts || []),
+            e.new_evidence,
+          ]
+            .filter(Boolean)
+            .join(" ");
+          return /\b(reuse|reusable|repair|repaired|fix|fixed|mend|recycle|recycling|recyclable|refill|mug|bin|carrier bag|cup)\b/i.test(
+            text
+          );
+        }),
+    },
+    {
+      id: "energy_investigator",
+      icon: "💡",
+      name: "Energy Investigator",
+      description: "Completes an energy-related investigation",
+      check: (entries) =>
+        entries.some((e) => {
+          const ev = e.evidence_used || [];
+          if (["EV-010", "EV-011", "EV-012"].some((id) => ev.includes(id))) return true;
+          const text = [
+            e.entry_title,
+            e.signal_summary,
+            ...(e.visible_facts || []),
+            e.new_evidence,
+          ]
+            .filter(Boolean)
+            .join(" ");
+          return /\b(light|lights|lighting|bulb|led|halogen|incandescent|lamp|switch|energy|electricity|standby|power|appliance|screen)\b/i.test(
+            text
+          );
+        }),
+    },
+    {
+      id: "evidence_hunter",
+      icon: "🔍",
+      name: "Evidence Hunter",
+      description: "Completes a follow-up that adds new evidence",
+      check: (entries) =>
+        entries.some(
+          (e) =>
+            (Array.isArray(e.awarded_events) &&
+              e.awarded_events.includes("meaningful_new_evidence")) ||
+            Boolean(e.new_evidence && String(e.new_evidence).trim())
+        ),
+    },
+    {
+      id: "human_habits_expert",
+      icon: "🛸",
+      name: "Human Habits Expert",
+      description: "Completes 2+ investigations and records player conclusions",
+      check: (entries) =>
+        entries.filter(
+          (e) =>
+            e.entry_state === "player_concluded" &&
+            Boolean(e.player_conclusion && String(e.player_conclusion).trim())
+        ).length >= 2,
+    },
   ];
 
   const SIGNAL_META = {
@@ -51,11 +185,24 @@
     player_concluded: { label: "Player Concluded ✓", pillClass: "state-player_concluded" },
   };
 
-  // DOM Elements: Navigation & Screens
+  // DOM Elements: Navigation, Header Status & Celebration
   const apiKeyBanner = document.getElementById("apiKeyBanner");
   const navScannerBtn = document.getElementById("navScannerBtn");
   const navNotebookBtn = document.getElementById("navNotebookBtn");
   const notebookCountPill = document.getElementById("notebookCountPill");
+
+  const headerPointsBtn = document.getElementById("headerPointsBtn");
+  const headerPointsValue = document.getElementById("headerPointsValue");
+  const headerBadgesBtn = document.getElementById("headerBadgesBtn");
+  const headerBadgesCount = document.getElementById("headerBadgesCount");
+  const voiceToggleBtn = document.getElementById("voiceToggleBtn");
+
+  const celebrationBanner = document.getElementById("celebrationBanner");
+  const celebrationPointsHeadline = document.getElementById("celebrationPointsHeadline");
+  const celebrationSpeakBtn = document.getElementById("celebrationSpeakBtn");
+  const celebrationCloseBtn = document.getElementById("celebrationCloseBtn");
+  const celebrationReasonsList = document.getElementById("celebrationReasonsList");
+  const celebrationBadgesWrap = document.getElementById("celebrationBadgesWrap");
 
   const scannerScreen = document.getElementById("scannerScreen");
   const resultsScreen = document.getElementById("resultsScreen");
@@ -102,6 +249,7 @@
   const signalBadge = document.getElementById("signalBadge");
   const signalSummary = document.getElementById("signalSummary");
   const zzorpReaction = document.getElementById("zzorpReaction");
+  const speakReactionBtn = document.getElementById("speakReactionBtn");
   const newEvidenceCard = document.getElementById("newEvidenceCard");
   const newEvidenceText = document.getElementById("newEvidenceText");
   const visibleFactsList = document.getElementById("visibleFactsList");
@@ -130,6 +278,8 @@
 
   // Screen 3 Elements
   const clearNotebookBtn = document.getElementById("clearNotebookBtn");
+  const nbTotalPoints = document.getElementById("nbTotalPoints");
+  const badgesGrid = document.getElementById("badgesGrid");
   const notebookEmptyState = document.getElementById("notebookEmptyState");
   const goToScannerFromEmptyBtn = document.getElementById("goToScannerFromEmptyBtn");
   const notebookEntriesList = document.getElementById("notebookEntriesList");
@@ -139,9 +289,10 @@
   let waitingTimer = null;
   let activeFollowUpEntryId = null; // non-null when scanning a follow-up photo for an existing notebook entry
   let currentResultEntryId = null; // ID of the notebook entry currently shown on Screen 2
+  let lastCelebrationSpeechText = "";
 
   /* =========================================================================
-     FIELD NOTEBOOK STORAGE (localStorage — never stores images)
+     FIELD NOTEBOOK & GAME LAYER STORAGE (localStorage — never stores images)
      ========================================================================= */
 
   function loadNotebook() {
@@ -164,6 +315,261 @@
     updateNotebookBadgeCount(entries.length);
   }
 
+  function loadGameState() {
+    try {
+      const raw = localStorage.getItem(GAME_STORAGE_KEY);
+      if (!raw) {
+        return {
+          total_points: 0,
+          awarded_events_by_entry: {},
+          unlocked_badges: [],
+          voice_enabled: false,
+        };
+      }
+      const parsed = JSON.parse(raw);
+      return {
+        total_points: Number(parsed.total_points) || 0,
+        awarded_events_by_entry:
+          parsed.awarded_events_by_entry && typeof parsed.awarded_events_by_entry === "object"
+            ? parsed.awarded_events_by_entry
+            : {},
+        unlocked_badges: Array.isArray(parsed.unlocked_badges) ? parsed.unlocked_badges : [],
+        voice_enabled: Boolean(parsed.voice_enabled),
+      };
+    } catch (_) {
+      return {
+        total_points: 0,
+        awarded_events_by_entry: {},
+        unlocked_badges: [],
+        voice_enabled: false,
+      };
+    }
+  }
+
+  function saveGameState(state) {
+    try {
+      localStorage.setItem(GAME_STORAGE_KEY, JSON.stringify(state));
+    } catch (_) {
+      // Ignore quota errors
+    }
+    updateHeaderGameStatus(state);
+  }
+
+  function calculateEntryPoints(awardedEvents) {
+    if (!Array.isArray(awardedEvents)) return 0;
+    return awardedEvents.reduce((sum, key) => {
+      const meta = POINT_EVENTS[key];
+      return sum + (meta ? meta.points : 0);
+    }, 0);
+  }
+
+  /**
+   * Award an event key to an entry if not already awarded for that entry.
+   */
+  function awardEventOnce(entry, eventKey, newlyAwardedList) {
+    if (!POINT_EVENTS[eventKey]) return;
+    if (!Array.isArray(entry.awarded_events)) {
+      entry.awarded_events = [];
+    }
+    if (entry.awarded_events.includes(eventKey)) {
+      return;
+    }
+    entry.awarded_events.push(eventKey);
+    entry.points_earned = calculateEntryPoints(entry.awarded_events);
+    if (Array.isArray(newlyAwardedList)) {
+      newlyAwardedList.push({
+        key: eventKey,
+        points: POINT_EVENTS[eventKey].points,
+        label: POINT_EVENTS[eventKey].label,
+      });
+    }
+  }
+
+  /**
+   * Reconcile total points and unlocked badges deterministically from the notebook entries.
+   * Returns any newly unlocked badge objects.
+   */
+  function syncGameStateWithNotebook(entries, backfillPreExisting = false) {
+    const state = loadGameState();
+    let notebookModified = false;
+
+    entries.forEach((entry) => {
+      const savedEventsForEntry = state.awarded_events_by_entry[entry.id] || [];
+      if (!Array.isArray(entry.awarded_events)) {
+        entry.awarded_events = [...savedEventsForEntry];
+        notebookModified = true;
+      } else {
+        savedEventsForEntry.forEach((evKey) => {
+          if (!entry.awarded_events.includes(evKey)) {
+            entry.awarded_events.push(evKey);
+            notebookModified = true;
+          }
+        });
+      }
+
+      // If loading pre-existing entries from before the game layer was added, backfill their baseline events once silently
+      if (backfillPreExisting && entry.awarded_events.length === 0) {
+        awardEventOnce(entry, "first_scan_completed", null);
+        if (entry.signal_type === "positive_signal") {
+          awardEventOnce(entry, "positive_signal_bonus", null);
+        }
+        if (entry.new_evidence) {
+          awardEventOnce(entry, "follow_up_completed", null);
+          awardEventOnce(entry, "meaningful_new_evidence", null);
+        }
+        if (entry.entry_state === "player_concluded" && entry.player_conclusion) {
+          awardEventOnce(entry, "player_conclusion_saved", null);
+        }
+        notebookModified = true;
+      }
+
+      entry.points_earned = calculateEntryPoints(entry.awarded_events);
+      state.awarded_events_by_entry[entry.id] = [...entry.awarded_events];
+    });
+
+    if (notebookModified) {
+      saveNotebook(entries);
+    }
+
+    // Total points across all notebook entries
+    state.total_points = entries.reduce(
+      (sum, entry) => sum + calculateEntryPoints(entry.awarded_events),
+      0
+    );
+
+    // Evaluate badges deterministically
+    const prevUnlocked = new Set(state.unlocked_badges || []);
+    const newlyUnlockedBadges = [];
+    const currentUnlockedIds = [];
+
+    BADGE_DEFINITIONS.forEach((badge) => {
+      if (badge.check(entries)) {
+        currentUnlockedIds.push(badge.id);
+        if (!prevUnlocked.has(badge.id)) {
+          newlyUnlockedBadges.push(badge);
+        }
+      }
+    });
+
+    state.unlocked_badges = currentUnlockedIds;
+    saveGameState(state);
+    return newlyUnlockedBadges;
+  }
+
+  function updateHeaderGameStatus(state) {
+    const safeState = state || loadGameState();
+    if (headerPointsValue) {
+      headerPointsValue.textContent = String(safeState.total_points || 0);
+    }
+    if (headerBadgesCount) {
+      const unlockedCount = Array.isArray(safeState.unlocked_badges)
+        ? safeState.unlocked_badges.length
+        : 0;
+      headerBadgesCount.textContent = `${unlockedCount} / ${BADGE_DEFINITIONS.length} Badges`;
+    }
+    if (voiceToggleBtn) {
+      const isOn = Boolean(safeState.voice_enabled);
+      voiceToggleBtn.setAttribute("aria-pressed", isOn ? "true" : "false");
+      voiceToggleBtn.textContent = isOn ? "🔊 Voice: On" : "🔇 Voice: Off";
+    }
+  }
+
+  /* =========================================================================
+     OPTIONAL USER-CONTROLLED SPEECH & CELEBRATION UI
+     ========================================================================= */
+
+  function speakZzorpText(text) {
+    if (!text || !("speechSynthesis" in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.04;
+      utterance.pitch = 1.18; // Playful friendly alien pitch
+      window.speechSynthesis.speak(utterance);
+    } catch (_) {
+      // Ignore speech synthesis errors on unsupported browsers
+    }
+  }
+
+  function triggerCelebration(newlyAwardedEvents, newlyUnlockedBadges, reactionSpeechText) {
+    const eventsList = Array.isArray(newlyAwardedEvents) ? newlyAwardedEvents : [];
+    const badgesList = Array.isArray(newlyUnlockedBadges) ? newlyUnlockedBadges : [];
+    const pointsAdded = eventsList.reduce((sum, ev) => sum + (ev.points || 0), 0);
+
+    if (pointsAdded <= 0 && badgesList.length === 0) {
+      return;
+    }
+
+    if (celebrationPointsHeadline) {
+      celebrationPointsHeadline.textContent =
+        pointsAdded > 0 ? `+${pointsAdded} Signal Points!` : "Badge Unlocked!";
+    }
+
+    if (celebrationReasonsList) {
+      celebrationReasonsList.innerHTML = "";
+      eventsList.forEach((ev) => {
+        const chip = document.createElement("span");
+        chip.className = "celebration-reason-chip";
+        const strong = document.createElement("strong");
+        strong.textContent = `+${ev.points}`;
+        chip.appendChild(strong);
+        chip.appendChild(document.createTextNode(ev.label));
+        celebrationReasonsList.appendChild(chip);
+      });
+    }
+
+    if (celebrationBadgesWrap) {
+      celebrationBadgesWrap.innerHTML = "";
+      if (badgesList.length > 0) {
+        badgesList.forEach((badge) => {
+          const item = document.createElement("div");
+          item.className = "celebration-badge-item";
+          const emoji = document.createElement("span");
+          emoji.className = "badge-emoji";
+          emoji.textContent = badge.icon;
+          const textDiv = document.createElement("div");
+          const titleStrong = document.createElement("strong");
+          titleStrong.textContent = `Badge Unlocked: ${badge.name}! `;
+          const descSpan = document.createElement("span");
+          descSpan.textContent = badge.description;
+          textDiv.appendChild(titleStrong);
+          textDiv.appendChild(descSpan);
+          item.appendChild(emoji);
+          item.appendChild(textDiv);
+          celebrationBadgesWrap.appendChild(item);
+        });
+        celebrationBadgesWrap.classList.remove("hidden");
+      } else {
+        celebrationBadgesWrap.classList.add("hidden");
+      }
+    }
+
+    // Build speech text for user-controlled announcement
+    const speechParts = [];
+    if (pointsAdded > 0) {
+      speechParts.push(`Plus ${pointsAdded} Signal Points!`);
+    }
+    if (badgesList.length > 0) {
+      speechParts.push(
+        `Badge unlocked: ${badgesList.map((b) => b.name).join(" and ")}!`
+      );
+    }
+    if (reactionSpeechText) {
+      speechParts.push(reactionSpeechText);
+    }
+    lastCelebrationSpeechText = speechParts.join(" ");
+
+    if (celebrationBanner) {
+      celebrationBanner.classList.remove("hidden");
+    }
+
+    // Only speak automatically if the user has explicitly turned "Voice: On"
+    const gameState = loadGameState();
+    if (gameState.voice_enabled && lastCelebrationSpeechText) {
+      speakZzorpText(lastCelebrationSpeechText);
+    }
+  }
+
   function updateNotebookBadgeCount(count) {
     if (notebookCountPill) {
       notebookCountPill.textContent = String(count);
@@ -177,6 +583,7 @@
   /**
    * Create a new Field Notebook entry from a first_scan response,
    * or update an existing entry from a follow_up response.
+   * Calculates Signal Points and Badges deterministically and triggers celebration.
    */
   function recordScanInNotebook(payload, followUpEntryId) {
     const entries = loadNotebook();
@@ -184,13 +591,23 @@
     const nbUpdate = result.notebook_update || {};
     const incomingSources = Array.isArray(payload.sources) ? payload.sources : [];
     const nowIso = new Date().toISOString();
+    const newlyAwardedEvents = [];
 
     if (followUpEntryId) {
       const idx = entries.findIndex((e) => e.id === followUpEntryId);
       if (idx !== -1) {
         const existing = entries[idx];
+        const firstScanEvidenceIds = Array.isArray(existing.initial_evidence_used)
+          ? existing.initial_evidence_used
+          : Array.isArray(existing.evidence_used)
+          ? existing.evidence_used
+          : [];
+        const incomingEvidenceIds = Array.isArray(result.evidence_used)
+          ? result.evidence_used
+          : [];
+
         const mergedEvidenceIds = Array.from(
-          new Set([...(existing.evidence_used || []), ...(result.evidence_used || [])])
+          new Set([...(existing.evidence_used || []), ...incomingEvidenceIds])
         );
 
         const sourceMap = new Map();
@@ -202,23 +619,86 @@
           ? "player_concluded"
           : "evidence_gathered";
 
-        existing.updated_at = nowIso;
-        existing.entry_state = nextState;
-        existing.new_evidence =
+        const resolvedNewEvidence =
           nbUpdate.new_evidence ||
           result.signal_summary ||
           "Follow-up photo examined by Zzorp.";
+
+        // Check if Zzorp revised its interpretation (signal_type changed or missing_information resolved)
+        const prevSignalType = existing.initial_signal_type || existing.signal_type;
+        const signalTypeChanged = Boolean(
+          result.signal_type && result.signal_type !== prevSignalType
+        );
+        const prevMissing = Array.isArray(existing.initial_missing_information)
+          ? existing.initial_missing_information
+          : Array.isArray(existing.missing_information)
+          ? existing.missing_information
+          : [];
+        const currMissing = Array.isArray(result.missing_information)
+          ? result.missing_information
+          : [];
+        const missingInfoResolved =
+          prevMissing.length > 0 &&
+          (currMissing.length < prevMissing.length ||
+            prevMissing.some((item) => !currMissing.includes(item)));
+
+        existing.updated_at = nowIso;
+        existing.entry_state = nextState;
+        existing.new_evidence = resolvedNewEvidence;
         existing.follow_up_reaction = result.zzorp_reaction || "";
         existing.evidence_used = mergedEvidenceIds;
         existing.sources = Array.from(sourceMap.values());
+        if (result.signal_type) {
+          existing.signal_type = result.signal_type;
+        }
+        if (Array.isArray(result.missing_information)) {
+          existing.missing_information = result.missing_information;
+        }
+
+        // Award deterministic follow-up Signal Points (each event awarded at most once per entry)
+        awardEventOnce(existing, "follow_up_completed", newlyAwardedEvents);
+
+        const hasMeaningfulEvidence =
+          (nbUpdate.new_evidence && String(nbUpdate.new_evidence).trim().length > 5) ||
+          (Array.isArray(result.visible_facts) && result.visible_facts.length > 0);
+        if (hasMeaningfulEvidence) {
+          awardEventOnce(existing, "meaningful_new_evidence", newlyAwardedEvents);
+        }
+
+        const introducesNewArchiveId = incomingEvidenceIds.some(
+          (id) => !firstScanEvidenceIds.includes(id)
+        );
+        if (introducesNewArchiveId) {
+          awardEventOnce(existing, "new_archive_id_bonus", newlyAwardedEvents);
+        }
+
+        if (signalTypeChanged || missingInfoResolved) {
+          awardEventOnce(existing, "interpretation_revised", newlyAwardedEvents);
+        }
+
+        if (result.signal_type === "positive_signal") {
+          awardEventOnce(existing, "positive_signal_bonus", newlyAwardedEvents);
+        }
 
         entries[idx] = existing;
         saveNotebook(entries);
+        const newlyUnlockedBadges = syncGameStateWithNotebook(entries, false);
+        triggerCelebration(
+          newlyAwardedEvents,
+          newlyUnlockedBadges,
+          result.zzorp_reaction || ""
+        );
         return existing;
       }
     }
 
     // Create new entry from first_scan
+    const initialEvidence = Array.isArray(result.evidence_used) ? result.evidence_used : [];
+    const initialMissing = Array.isArray(result.missing_information)
+      ? result.missing_information
+      : [];
+    const initialSignal = result.signal_type || "no_signal";
+
     const newEntry = {
       id: `entry_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       created_at: nowIso,
@@ -228,30 +708,48 @@
       entry_state:
         nbUpdate.entry_state && nbUpdate.entry_state !== "player_concluded"
           ? nbUpdate.entry_state
-          : result.signal_type === "no_signal"
+          : initialSignal === "no_signal"
           ? "observed"
           : "question_open",
-      signal_type: result.signal_type || "no_signal",
+      signal_type: initialSignal,
+      initial_signal_type: initialSignal,
       signal_summary: result.signal_summary || "",
       zzorp_reaction: result.zzorp_reaction || "",
       visible_facts: result.visible_facts || [],
       inferences: result.inferences || [],
-      missing_information: result.missing_information || [],
+      missing_information: initialMissing,
+      initial_missing_information: [...initialMissing],
       mission: result.mission || null,
-      evidence_used: result.evidence_used || [],
+      evidence_used: [...initialEvidence],
+      initial_evidence_used: [...initialEvidence],
       sources: incomingSources,
       new_evidence: null,
       follow_up_reaction: null,
       player_conclusion: null, // Always null until player writes it
+      awarded_events: [],
+      points_earned: 0,
     };
+
+    // Award deterministic first-scan Signal Points
+    awardEventOnce(newEntry, "first_scan_completed", newlyAwardedEvents);
+    if (initialSignal === "positive_signal") {
+      awardEventOnce(newEntry, "positive_signal_bonus", newlyAwardedEvents);
+    }
 
     entries.unshift(newEntry);
     saveNotebook(entries);
+    const newlyUnlockedBadges = syncGameStateWithNotebook(entries, false);
+    triggerCelebration(
+      newlyAwardedEvents,
+      newlyUnlockedBadges,
+      result.zzorp_reaction || ""
+    );
     return newEntry;
   }
 
   /**
    * Save the player's own conclusion for an entry and transition state to player_concluded.
+   * Awards +15 Signal Points the first time a non-empty conclusion is saved for this entry.
    */
   function savePlayerConclusion(entryId, conclusionText) {
     const trimmed = (conclusionText || "").trim();
@@ -261,10 +759,20 @@
     const idx = entries.findIndex((e) => e.id === entryId);
     if (idx === -1) return null;
 
+    const newlyAwardedEvents = [];
     entries[idx].player_conclusion = trimmed;
     entries[idx].entry_state = "player_concluded";
     entries[idx].updated_at = new Date().toISOString();
+
+    awardEventOnce(entries[idx], "player_conclusion_saved", newlyAwardedEvents);
+
     saveNotebook(entries);
+    const newlyUnlockedBadges = syncGameStateWithNotebook(entries, false);
+    triggerCelebration(
+      newlyAwardedEvents,
+      newlyUnlockedBadges,
+      "Fascinating human conclusion logged in my Field Notebook!"
+    );
     return entries[idx];
   }
 
@@ -681,9 +1189,50 @@
      SCREEN 3: FIELD NOTEBOOK RENDERING
      ========================================================================= */
 
+  function renderBadgesGrid(unlockedIds) {
+    if (!badgesGrid) return;
+    badgesGrid.innerHTML = "";
+    const unlockedSet = new Set(Array.isArray(unlockedIds) ? unlockedIds : []);
+
+    BADGE_DEFINITIONS.forEach((b) => {
+      const isUnlocked = unlockedSet.has(b.id);
+      const card = document.createElement("div");
+      card.className = `badge-card ${isUnlocked ? "unlocked" : "locked"}`;
+
+      const icon = document.createElement("span");
+      icon.className = "badge-icon";
+      icon.textContent = b.icon;
+
+      const name = document.createElement("span");
+      name.className = "badge-name";
+      name.textContent = b.name;
+
+      const desc = document.createElement("span");
+      desc.className = "badge-desc";
+      desc.textContent = b.description;
+
+      const status = document.createElement("span");
+      status.className = "badge-status";
+      status.textContent = isUnlocked ? "✓ Unlocked" : "🔒 Locked";
+
+      card.appendChild(icon);
+      card.appendChild(name);
+      card.appendChild(desc);
+      card.appendChild(status);
+      badgesGrid.appendChild(card);
+    });
+  }
+
   function renderNotebookScreen() {
     const entries = loadNotebook();
     updateNotebookBadgeCount(entries.length);
+    syncGameStateWithNotebook(entries, true);
+
+    const gameState = loadGameState();
+    if (nbTotalPoints) {
+      nbTotalPoints.textContent = String(gameState.total_points || 0);
+    }
+    renderBadgesGrid(gameState.badges_unlocked || []);
 
     notebookEntriesList.innerHTML = "";
     if (entries.length === 0) {
@@ -696,7 +1245,7 @@
       const card = document.createElement("article");
       card.className = "notebook-entry-card";
 
-      // Top bar: Signal badge + Entry state pill
+      // Top bar: Signal badge + Points pill + Entry state pill
       const top = document.createElement("div");
       top.className = "nb-card-top";
 
@@ -707,11 +1256,24 @@
       sigBadge.style.padding = "0.24rem 0.68rem";
       sigBadge.textContent = sigMeta.label;
 
+      const rightPills = document.createElement("div");
+      rightPills.style.display = "flex";
+      rightPills.style.alignItems = "center";
+      rightPills.style.gap = "0.45rem";
+      rightPills.style.flexWrap = "wrap";
+
+      const pointsPill = document.createElement("span");
+      pointsPill.className = "nb-entry-points-pill";
+      pointsPill.textContent = `⚡ ${entry.points_earned || 0} pts`;
+
       const statePill = document.createElement("span");
       applyStatePill(statePill, entry.entry_state);
 
+      rightPills.appendChild(pointsPill);
+      rightPills.appendChild(statePill);
+
       top.appendChild(sigBadge);
-      top.appendChild(statePill);
+      top.appendChild(rightPills);
       card.appendChild(top);
 
       // Title
@@ -817,8 +1379,7 @@
       saveBtn.addEventListener("click", () => {
         const updated = savePlayerConclusion(entry.id, textarea.value);
         if (updated) {
-          applyStatePill(statePill, updated.entry_state);
-          savedNote.classList.remove("hidden");
+          renderNotebookScreen();
         }
       });
 
@@ -853,7 +1414,9 @@
         isFollowUp && followUpEntry
           ? {
               entry_title: followUpEntry.entry_title,
+              signal_type: followUpEntry.signal_type,
               zzorp_question: followUpEntry.zzorp_question,
+              missing_information: followUpEntry.missing_information,
               mission: followUpEntry.mission,
               evidence_used: followUpEntry.evidence_used,
             }
@@ -940,6 +1503,25 @@
     hideError();
     startWaitingAnimation();
     try {
+      let targetFollowUpId = null;
+
+      // If running the follow_up demo preset, attach it to an existing entry (or create the cup entry first)
+      if (presetName === "follow_up") {
+        let entries = loadNotebook();
+        if (activeFollowUpEntryId && getNotebookEntryById(activeFollowUpEntryId)) {
+          targetFollowUpId = activeFollowUpEntryId;
+        } else if (entries.length > 0) {
+          targetFollowUpId = entries[0].id;
+        } else {
+          const cupRes = await fetch("/api/demo_preset/cup");
+          const cupData = await cupRes.json();
+          if (cupRes.ok && cupData.ok) {
+            const seeded = recordScanInNotebook(cupData, null);
+            targetFollowUpId = seeded ? seeded.id : null;
+          }
+        }
+      }
+
       const res = await fetch(`/api/demo_preset/${encodeURIComponent(presetName)}`);
       const data = await res.json();
       stopWaitingAnimation();
@@ -948,7 +1530,7 @@
         return;
       }
       exitFollowUpMode();
-      const savedEntry = recordScanInNotebook(data, null);
+      const savedEntry = recordScanInNotebook(data, targetFollowUpId);
       renderResults(data, savedEntry);
     } catch (_) {
       stopWaitingAnimation();
@@ -966,6 +1548,48 @@
   goToScannerFromEmptyBtn.addEventListener("click", resetToScanner);
   cancelFollowUpBtn.addEventListener("click", exitFollowUpMode);
 
+  if (headerPointsBtn) {
+    headerPointsBtn.addEventListener("click", () => showScreen("notebook"));
+  }
+  if (headerBadgesBtn) {
+    headerBadgesBtn.addEventListener("click", () => showScreen("notebook"));
+  }
+  if (voiceToggleBtn) {
+    voiceToggleBtn.addEventListener("click", () => {
+      const state = loadGameState();
+      state.voice_enabled = !state.voice_enabled;
+      saveGameState(state);
+      updateHeaderGameStatus(state);
+      if (!state.voice_enabled && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    });
+  }
+  if (celebrationCloseBtn) {
+    celebrationCloseBtn.addEventListener("click", () => {
+      if (celebrationBanner) {
+        celebrationBanner.classList.add("hidden");
+      }
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    });
+  }
+  if (celebrationSpeakBtn) {
+    celebrationSpeakBtn.addEventListener("click", () => {
+      if (lastCelebrationSpeechText) {
+        speakZzorpText(lastCelebrationSpeechText);
+      }
+    });
+  }
+  if (speakReactionBtn) {
+    speakReactionBtn.addEventListener("click", () => {
+      if (zzorpReaction && zzorpReaction.textContent) {
+        speakZzorpText(zzorpReaction.textContent);
+      }
+    });
+  }
+
   startFollowUpFromResultsBtn.addEventListener("click", () => {
     if (currentResultEntryId) {
       enterFollowUpMode(currentResultEntryId);
@@ -982,8 +1606,17 @@
   });
 
   clearNotebookBtn.addEventListener("click", () => {
-    if (window.confirm("Clear all entries in your Field Notebook?")) {
+    if (window.confirm("Clear all entries, Signal Points, and Badges in your Field Notebook?")) {
       saveNotebook([]);
+      saveGameState({
+        total_points: 0,
+        awarded_events_by_entry: {},
+        badges_unlocked: [],
+        voice_enabled: loadGameState().voice_enabled,
+      });
+      if (celebrationBanner) {
+        celebrationBanner.classList.add("hidden");
+      }
       renderNotebookScreen();
     }
   });
@@ -1030,7 +1663,9 @@
   });
 
   // Initialize
-  updateNotebookBadgeCount(loadNotebook().length);
+  const initialEntries = loadNotebook();
+  updateNotebookBadgeCount(initialEntries.length);
+  syncGameStateWithNotebook(initialEntries, true);
   checkHealth();
   loadExampleFiles();
 })();
