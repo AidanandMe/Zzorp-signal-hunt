@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Zzorp Signal Hunt — Earth Field Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="cosmic-bg" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <!-- Top Brand Header -->
+    <header class="site-header">
+      <div class="brand-row">
+        <div class="zzorp-avatar" aria-hidden="true">
+          <!-- Custom SVG Zzorp Alien Field Scientist -->
+          <svg viewBox="0 0 80 80" width="56" height="56" role="img" aria-label="Zzorp the alien">
+            <defs>
+              <radialGradient id="zzorpGlow" cx="50%" cy="45%" r="50%">
+                <stop offset="0%" stop-color="#a3e635" />
+                <stop offset="100%" stop-color="#10b981" />
+              </radialGradient>
+            </defs>
+            <!-- Antennae -->
+            <path d="M26 22 Q20 8 14 11" stroke="#a3e635" stroke-width="3.5" stroke-linecap="round" fill="none" />
+            <circle cx="13" cy="11" r="5" fill="#38bdf8" />
+            <path d="M54 22 Q60 8 66 11" stroke="#a3e635" stroke-width="3.5" stroke-linecap="round" fill="none" />
+            <circle cx="67" cy="11" r="5" fill="#38bdf8" />
+            <!-- Head -->
+            <ellipse cx="40" cy="44" rx="26" ry="23" fill="url(#zzorpGlow)" stroke="#064e3b" stroke-width="2.5" />
+            <!-- Left Eye -->
+            <circle cx="29" cy="41" r="7.5" fill="#ffffff" stroke="#064e3b" stroke-width="2" />
+            <circle cx="30" cy="41" r="3.5" fill="#0f172a" />
+            <circle cx="31.5" cy="39.5" r="1.3" fill="#ffffff" />
+            <!-- Right Eye -->
+            <circle cx="51" cy="41" r="7.5" fill="#ffffff" stroke="#064e3b" stroke-width="2" />
+            <circle cx="50" cy="41" r="3.5" fill="#0f172a" />
+            <circle cx="51.5" cy="39.5" r="1.3" fill="#ffffff" />
+            <!-- Center Curious Third Eye -->
+            <circle cx="40" cy="29" r="5" fill="#ffffff" stroke="#064e3b" stroke-width="1.8" />
+            <circle cx="40" cy="29" r="2.2" fill="#0f172a" />
+            <!-- Curious / Puzzled Mouth -->
+            <path d="M33 54 Q40 51 47 55" stroke="#064e3b" stroke-width="2.8" stroke-linecap="round" fill="none" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-pill">EARTH FIELD MISSION • GEMINI 4 ARGON</div>
+          <h1>Zzorp Signal Hunt</h1>
+        </div>
+      </div>
+      <p class="hero-tagline">Show Zzorp something humans have stopped noticing.</p>
+    </header>
+
+    <!-- API Key Setup Banner (shown only if .env still has placeholder) -->
+    <div id="apiKeyBanner" class="api-banner hidden" role="status">
+      <strong>Power Crystal Missing:</strong> Paste your <code>GEMINI_API_KEY</code> into the <code>.env</code> file in the project folder to activate Zzorp's scanner.
+    </div>
+
+    <main class="main-content">
+      <!-- SCREEN 1: SIGNAL SCANNER -->
+      <section id="scannerScreen" class="panel scanner-panel" aria-labelledby="scannerHeading">
+        <div class="panel-header">
+          <span class="step-tag">SCREEN 1 • SIGNAL SCANNER</span>
+          <h2 id="scannerHeading">Capture or Choose an Earth Specimen</h2>
+          <p class="panel-subtext">
+            Photos are resized in your browser to strip location metadata and are never saved to disk.
+          </p>
+        </div>
+
+        <!-- Upload / Camera Controls -->
+        <div class="upload-zone" id="uploadDropZone">
+          <input
+            type="file"
+            id="imageInput"
+            accept="image/*"
+            class="sr-only"
+          />
+          <input
+            type="file"
+            id="cameraInput"
+            accept="image/*"
+            capture="environment"
+            class="sr-only"
+          />
+
+          <div id="emptyUploadPrompt" class="empty-upload">
+            <div class="scanner-reticle" aria-hidden="true">
+              <span>⌜</span><span>⌝</span>
+              <div class="reticle-icon">🔭</div>
+              <span>⌞</span><span>⌟</span>
+            </div>
+            <p class="upload-title">Point your scanner at an everyday human habit or object</p>
+            <p class="upload-hint">Packaging, bins, signs, lights, urban nature, or anything ordinary</p>
+            <div class="upload-btn-group">
+              <label for="cameraInput" class="btn btn-secondary">
+                📷 Take Photo
+              </label>
+              <label for="imageInput" class="btn btn-outline">
+                🖼️ Choose Image
+              </label>
+            </div>
+          </div>
+
+          <!-- Image Preview once selected -->
+          <div id="previewContainer" class="preview-container hidden">
+            <div class="preview-frame">
+              <img id="imagePreview" alt="Selected Earth specimen preview" />
+              <span id="imageMetaBadge" class="meta-badge">Resized • EXIF stripped</span>
+            </div>
+            <div class="preview-actions">
+              <label for="imageInput" class="btn btn-small btn-outline">Change Photo</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Scan Action -->
+        <div class="scan-action-bar">
+          <button id="scanBtn" type="button" class="btn btn-primary btn-large" disabled>
+            <span class="btn-icon">📡</span>
+            <span>Transmit to Zzorp</span>
+          </button>
+        </div>
+
+        <!-- Playful Waiting State while Argon thinks -->
+        <div id="waitingState" class="waiting-card hidden" aria-live="polite">
+          <div class="radar-spinner" aria-hidden="true">
+            <div class="radar-sweep"></div>
+            <div class="radar-dot"></div>
+          </div>
+          <p id="waitingMessage" class="waiting-status">Scanning specimen…</p>
+          <div class="waiting-steps" aria-hidden="true">
+            <span class="wait-dot active" id="waitDot0"></span>
+            <span class="wait-dot" id="waitDot1"></span>
+            <span class="wait-dot" id="waitDot2"></span>
+          </div>
+          <p class="waiting-sub">Gemini 4 Argon is observing facts and checking the Earth Evidence Archive…</p>
+        </div>
+
+        <!-- Friendly In-Character Error Banner -->
+        <div id="errorCard" class="error-card hidden" role="alert">
+          <div class="error-icon">🛸</div>
+          <div class="error-body">
+            <h3>Scanner Interference!</h3>
+            <p id="errorText"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: RESULTS -->
+      <section id="resultsScreen" class="panel results-panel hidden" aria-labelledby="resultsHeading">
+        <div class="results-top-bar">
+          <span class="step-tag">SCREEN 2 • FIELD REPORT</span>
+          <button id="newScanBtn" type="button" class="btn btn-outline btn-small">
+            🔄 Scan Another Specimen
+          </button>
+        </div>
+
+        <h2 id="resultsHeading" class="specimen-title">Specimen Analysis</h2>
+
+        <!-- SIGNAL BADGE + SIGNAL SUMMARY -->
+        <div id="signalCard" class="result-card signal-card">
+          <div class="card-eyebrow">SIGNAL CLASSIFICATION</div>
+          <div class="signal-badge-row">
+            <span id="signalBadge" class="signal-badge">Signal</span>
+          </div>
+          <p id="signalSummary" class="signal-summary-text"></p>
+        </div>
+
+        <!-- ZZORP SAYS (Character Card) -->
+        <div class="result-card zzorp-says-card">
+          <div class="zzorp-card-header">
+            <span class="zzorp-mini-icon" aria-hidden="true">👽</span>
+            <span class="card-eyebrow">ZZORP SAYS</span>
+          </div>
+          <blockquote id="zzorpReaction" class="zzorp-quote"></blockquote>
+        </div>
+
+        <!-- TWO-COLUMN BREAKDOWN: WHAT I CAN SEE & POSSIBLE INTERPRETATION -->
+        <div class="observation-grid">
+          <div class="result-card obs-card">
+            <div class="card-eyebrow">👁️ WHAT I CAN SEE</div>
+            <p class="card-helper">Directly visible facts in the photo</p>
+            <ul id="visibleFactsList" class="fact-list"></ul>
+          </div>
+
+          <div class="result-card inference-card">
+            <div class="card-eyebrow">🔍 POSSIBLE INTERPRETATION</div>
+            <p class="card-helper">Plausible guesses from what is visible</p>
+            <ul id="inferencesList" class="fact-list"></ul>
+          </div>
+        </div>
+
+        <!-- WHAT I STILL DON'T KNOW -->
+        <div class="result-card missing-info-card">
+          <div class="card-eyebrow">❓ WHAT I STILL DON'T KNOW</div>
+          <p class="card-helper">Details not visible in this single photo</p>
+          <ul id="missingInfoList" class="fact-list"></ul>
+        </div>
+
+        <!-- MISSION CARD (Only shown when mission is non-null) -->
+        <div id="missionCard" class="result-card mission-card hidden">
+          <div class="mission-header">
+            <div>
+              <div class="card-eyebrow">🚀 FIELD MISSION</div>
+              <h3 class="mission-title">Investigate Further</h3>
+            </div>
+            <span id="askAdultBadge" class="ask-adult-badge hidden">
+              🤝 Ask an adult
+            </span>
+          </div>
+          <p id="missionInstruction" class="mission-instruction"></p>
+          <div class="mission-photo-box">
+            <span class="photo-label">📸 Photo to bring back:</span>
+            <span id="missionPhotoTarget" class="photo-target-text"></span>
+          </div>
+        </div>
+
+        <!-- ZZORP'S SOURCES (Collapsible Drawer using sources_for) -->
+        <details id="sourcesDrawer" class="result-card sources-drawer">
+          <summary class="sources-summary">
+            <div class="sources-summary-left">
+              <span class="card-eyebrow">📚 ZZORP'S SOURCES</span>
+              <span id="sourcesCountBadge" class="sources-count-badge">0 archive entries cited</span>
+            </div>
+            <span class="drawer-chevron" aria-hidden="true">▾</span>
+          </summary>
+          <div id="sourcesContent" class="sources-content"></div>
+        </details>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Zzorp observes. You investigate. The conclusions are yours.</p>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

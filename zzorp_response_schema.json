@@ -1,0 +1,110 @@
+{
+  "type": "object",
+  "description": "One Zzorp scan result. Written in the OpenAPI subset that Gemini structured output accepts (type, properties, required, enum, nullable, items).",
+  "properties": {
+    "scan_type": {
+      "type": "string",
+      "enum": ["first_scan", "follow_up"],
+      "description": "first_scan = a new object or place. follow_up = the player is returning with evidence for an open mission."
+    },
+    "people_in_frame": {
+      "type": "boolean",
+      "description": "True if a person is visible. If true, Zzorp ignores the person completely and says nothing about them."
+    },
+    "visible_facts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Only what can be directly seen. No interpretation. Example: 'a paper cup with a plastic lid on a bench'."
+    },
+    "inferences": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Interpretations Zzorp is making from the visible facts, each phrased as a possibility ('it may have been left behind')."
+    },
+    "signal_type": {
+      "type": "string",
+      "enum": ["possible_contradiction", "positive_signal", "insufficient_evidence", "no_signal"],
+      "description": "Zzorp's honest classification. no_signal and insufficient_evidence are good, valid answers."
+    },
+    "signal_summary": {
+      "type": "string",
+      "description": "One sentence naming the contradiction, the positive behaviour, or why there is no signal."
+    },
+    "evidence_used": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Archive ids returned by lookup_evidence that this response relies on (e.g. 'EV-002'). An empty list is allowed and expected when no archive fact applies."
+    },
+    "missing_information": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What cannot be determined safely from the image."
+    },
+    "zzorp_reaction": {
+      "type": "string",
+      "description": "Zzorp's in-character line. Maximum 2 short sentences. Curious, puzzled or amused; never scolding."
+    },
+    "mission": {
+      "type": "object",
+      "nullable": true,
+      "description": "Null only when signal_type is no_signal and nothing is worth investigating.",
+      "properties": {
+        "instruction": {
+          "type": "string",
+          "description": "One concrete physical action a child can do, in under 20 words."
+        },
+        "photo_to_bring_back": {
+          "type": "string",
+          "description": "What the follow-up photo should show (e.g. 'the bottom of the cup', 'the label on the bin')."
+        },
+        "ask_an_adult": {
+          "type": "boolean",
+          "description": "True if the mission needs an adult (a website, a building, anything beyond what the child can see and reach)."
+        }
+      },
+      "required": ["instruction", "photo_to_bring_back", "ask_an_adult"]
+    },
+    "notebook_update": {
+      "type": "object",
+      "properties": {
+        "entry_title": {
+          "type": "string",
+          "description": "Short title in Zzorp's voice, e.g. 'Specimen #3: The Eight-Minute Cup'."
+        },
+        "entry_state": {
+          "type": "string",
+          "enum": ["observed", "question_open", "evidence_gathered", "player_concluded"],
+          "description": "Zzorp never sets player_concluded itself; only the app does, after the player writes their conclusion."
+        },
+        "zzorp_question": {
+          "type": "string",
+          "description": "The open question the investigation is trying to answer."
+        },
+        "new_evidence": {
+          "type": "string",
+          "nullable": true,
+          "description": "On follow_up scans: what the new photo showed. Null on first scans."
+        },
+        "player_conclusion": {
+          "type": "string",
+          "nullable": true,
+          "description": "Always null in Zzorp's output. Filled in by the app from the player's own words."
+        }
+      },
+      "required": ["entry_title", "entry_state", "zzorp_question", "new_evidence", "player_conclusion"]
+    }
+  },
+  "required": [
+    "scan_type",
+    "people_in_frame",
+    "visible_facts",
+    "inferences",
+    "signal_type",
+    "signal_summary",
+    "evidence_used",
+    "missing_information",
+    "zzorp_reaction",
+    "mission",
+    "notebook_update"
+  ]
+}

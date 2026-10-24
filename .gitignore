@@ -1,0 +1,18 @@
+# Environment variables (NEVER commit API keys)
+.env
+.env.*
+!.env.example
+
+# Python virtual environment & caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# OS / Editor temp files
+~$*
+.DS_Store
+Thumbs.db

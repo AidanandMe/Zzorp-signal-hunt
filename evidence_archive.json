@@ -1,0 +1,199 @@
+{
+  "archive_name": "Zzorp Evidence Archive",
+  "version": "0.1-hackathon",
+  "compiled": "2026-10-24",
+  "rules": [
+    "Zzorp may only state environmental facts that appear in this archive.",
+    "Every fact Zzorp uses must be cited by its id in evidence_used.",
+    "confidence describes how solid the evidence is, not how important the topic is.",
+    "caveat must be respected: if a caveat says a figure is dated or contested, Zzorp must not present it as precise or current.",
+    "Entries marked geography 'England' or 'London' must not be presented as true everywhere."
+  ],
+  "confidence_scale": {
+    "high": "Primary official source or peer-reviewed study; claim is stated directly by the source.",
+    "medium": "Credible source but the figure is an estimate, model, dated, or reported second-hand.",
+    "low": "Widely cited but contested or methodologically weak; use only to show uncertainty."
+  },
+  "entries": [
+    {
+      "id": "EV-001",
+      "topic": "takeaway_cups",
+      "signals": ["single_use", "cup"],
+      "statement": "A UK parliamentary committee reported that about 2.5 billion disposable coffee cups are thrown away in the UK each year, and fewer than 1 in 400 are recycled.",
+      "source": "House of Commons Environmental Audit Committee, 'Disposable Packaging: Coffee Cups' (report published January 2018)",
+      "url": "https://committees.parliament.uk/committee/62/environmental-audit-committee/",
+      "source_type": "official parliamentary report",
+      "confidence": "medium",
+      "caveat": "The 2.5 billion figure traces back to a 2011 Which? estimate and the report is from 2018. Present it as 'a few years ago, humans estimated...', not as today's number.",
+      "geography": "UK"
+    },
+    {
+      "id": "EV-002",
+      "topic": "takeaway_cups",
+      "signals": ["single_use", "cup", "recycling"],
+      "statement": "Most paper takeaway cups have a thin plastic lining bonded to the paper. This is why they usually cannot go in household recycling and need special recycling points.",
+      "source": "Recycle Now (WRAP), 'Paper coffee cups' guidance; Environmental Audit Committee coffee cup report (2018)",
+      "url": "https://recyclenow.com/recycle-an-item/paper-cups",
+      "source_type": "official recycling guidance",
+      "confidence": "high",
+      "caveat": "Some newer cups use plastic-free linings. Zzorp cannot tell the lining type from a photo, so it should ask the player to check the cup's label.",
+      "geography": "UK"
+    },
+    {
+      "id": "EV-003",
+      "topic": "local_recycling_rules",
+      "signals": ["cup", "recycling", "bins"],
+      "statement": "EXAMPLE LOCAL RULE: The South London Waste Partnership says paper coffee cups should not go in home recycling; a plastic lid can be separated and recycled, and the cup itself can be taken to an out-of-home cup collection point.",
+      "source": "South London Waste Partnership, 'Coffee cups' recycling guidance",
+      "url": "https://slwp.org.uk/recyclables/coffee-cups/",
+      "source_type": "local authority guidance",
+      "confidence": "high",
+      "caveat": "TEMPLATE ENTRY. Rules differ between boroughs. Before the demo, replace this with the guidance for the borough where you will demo, or tell the player to check their own council's website.",
+      "geography": "South London (Croydon, Kingston, Merton, Sutton)"
+    },
+    {
+      "id": "EV-004",
+      "topic": "plastic_cutlery",
+      "signals": ["single_use", "cutlery", "plates"],
+      "statement": "Since 1 October 2023, businesses in England may not sell or supply single-use plastic cutlery. The government estimated that England used about 2.7 billion single-use cutlery items and 721 million single-use plates a year, with only about 10% recycled.",
+      "source": "GOV.UK press release, 'New bans and restrictions on polluting single-use plastics come into force' (29 September 2023)",
+      "url": "https://www.gov.uk/government/news/new-bans-and-restrictions-on-polluting-single-use-plastics-come-into-force",
+      "source_type": "official government announcement",
+      "confidence": "high",
+      "caveat": "The ban is a fact (high confidence). The usage figures are government estimates (medium). The ban applies in England; Wales and Scotland have their own rules.",
+      "geography": "England"
+    },
+    {
+      "id": "EV-005",
+      "topic": "plastic_lifetime_uncertainty",
+      "signals": ["plastic", "single_use", "litter"],
+      "statement": "Popular claims like 'a plastic bottle lasts 450 years' are poorly supported by evidence. Scientists who traced these numbers found most had no clear scientific source, and that real breakdown times vary enormously with the type of plastic, its shape, and its environment (sunlight, sea, soil).",
+      "source": "Ward & Reddy, 'We need better data about the environmental persistence of plastic goods', PNAS 117(26), 2020; Chamas et al., 'Degradation Rates of Plastics in the Environment', ACS Sustainable Chemistry & Engineering 8, 2020",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7334500",
+      "source_type": "peer-reviewed literature",
+      "confidence": "high",
+      "caveat": "This entry is about uncertainty. Zzorp must never give a number of years for how long an object lasts. It can say plastic can persist for a long time and that humans themselves are not sure how long.",
+      "geography": "global"
+    },
+    {
+      "id": "EV-006",
+      "topic": "plastic_symbols",
+      "signals": ["plastic", "recycling", "label"],
+      "statement": "The triangle with a number (1 to 7) on plastic items is a resin identification code. It says which type of plastic the item is made of; it does not mean the item is recyclable where you live.",
+      "source": "ASTM D7611/D7611M, Standard Practice for Coding Plastic Manufactured Articles for Resin Identification (as summarised by ANSI)",
+      "url": "https://blog.ansi.org/ansi/standard-codes-recycling-plastics/",
+      "source_type": "technical standard",
+      "confidence": "high",
+      "caveat": "Whether a plastic is collected depends on local council rules.",
+      "geography": "global"
+    },
+    {
+      "id": "EV-007",
+      "topic": "packaged_produce",
+      "signals": ["packaging", "fruit", "vegetables"],
+      "statement": "WRAP, a UK waste charity, estimated that selling fresh fruit and vegetables loose and removing Best Before dates could save around 100,000 tonnes of household food waste and over 10,000 tonnes of plastic a year, because people could buy only what they need.",
+      "source": "WRAP, research on plastic packaging and date labels on fresh produce (published February 2022)",
+      "url": "https://www.wrap.ngo/media-centre/press-releases/wrap-proposes-government-consider-policy-change-expedite-removal",
+      "source_type": "charity research (modelled estimate)",
+      "confidence": "medium",
+      "caveat": "This is a model, and the British Plastics Federation disputed it. Some packaging can reduce food waste for some products. Zzorp should present this as 'one group of humans calculated...'.",
+      "geography": "UK"
+    },
+    {
+      "id": "EV-008",
+      "topic": "food_waste",
+      "signals": ["fruit", "vegetables", "food_waste"],
+      "statement": "UK households throw away an estimated 1.7 million tonnes of edible fresh fruit and vegetables each year.",
+      "source": "Senedd Research, 'Fresh produce, less plastic? The debate over plastic packaging' (citing WRAP data)",
+      "url": "https://research.senedd.wales/research-articles/fresh-produce-less-plastic-the-debate-over-plastic-packaging/",
+      "source_type": "parliamentary research briefing citing charity data",
+      "confidence": "medium",
+      "caveat": "Estimate; figures in different WRAP publications range from 1.6 to 1.7 million tonnes.",
+      "geography": "UK"
+    },
+    {
+      "id": "EV-009",
+      "topic": "carrier_bags",
+      "signals": ["positive", "bags", "reuse", "policy"],
+      "statement": "Since England introduced a charge for single-use carrier bags in 2015, the number sold by the main supermarkets has fallen by about 98%. In 2014 each person used around 140 such bags a year from these shops; now it is around 2.",
+      "source": "Defra, 'Single-use plastic carrier bags charge: data for England 2025 to 2026' (GOV.UK)",
+      "url": "https://www.gov.uk/government/publications/carrier-bag-charge-summary-of-data-in-england/single-use-plastic-carrier-bags-charge-data-for-england-2025-to-2026",
+      "source_type": "official statistics",
+      "confidence": "high",
+      "caveat": "Covers the main supermarkets in England only; people may have switched to other kinds of bags.",
+      "geography": "England"
+    },
+    {
+      "id": "EV-010",
+      "topic": "lighting",
+      "signals": ["energy", "lights"],
+      "statement": "LED bulbs give the same amount of light as halogen bulbs while using about 80% less electricity. Old incandescent bulbs turn only about 5% of their electricity into visible light; the rest becomes heat.",
+      "source": "Energy Saving Trust, lighting advice",
+      "url": "https://energysavingtrust.org.uk/home-energy-efficiency/lighting",
+      "source_type": "government-funded advice body",
+      "confidence": "high",
+      "caveat": "Zzorp cannot tell bulb type reliably from a photo; it can ask the player to find out.",
+      "geography": "UK"
+    },
+    {
+      "id": "EV-011",
+      "topic": "lighting",
+      "signals": ["energy", "lights", "empty_room"],
+      "statement": "The Energy Saving Trust advises turning off lights in rooms you are not using, and estimates this saves a typical household a small amount each year.",
+      "source": "Energy Saving Trust, lighting advice",
+      "url": "https://energysavingtrust.org.uk/home-energy-efficiency/lighting",
+      "source_type": "government-funded advice body",
+      "confidence": "medium",
+      "caveat": "Money estimates change with energy prices, so Zzorp should not quote a pound figure. A light on may have a reason (safety, someone returning, a shop display).",
+      "geography": "UK"
+    },
+    {
+      "id": "EV-012",
+      "topic": "standby_power",
+      "signals": ["energy", "screens", "standby"],
+      "statement": "A 2012 UK government-backed study estimated that devices on standby accounted for roughly 9-16% of household electricity use. Other researchers have questioned how this was calculated.",
+      "source": "Energy Saving Trust, Defra and DECC, 'Powering the Nation: household electricity-using habits revealed' (2012)",
+      "url": "https://www.gov.uk/government/news/hidden-costs-of-powering-our-homes",
+      "source_type": "government-commissioned study",
+      "confidence": "low",
+      "caveat": "Old and contested; modern devices use much less standby power. Use only to show that humans disagree about the size of the problem.",
+      "geography": "UK"
+    },
+    {
+      "id": "EV-013",
+      "topic": "urban_trees",
+      "signals": ["nature", "trees", "positive"],
+      "statement": "A 2014 survey estimated that London has about 8.4 million trees, roughly one for every Londoner. Their benefits (storing carbon, cleaning the air, reducing flooding) were valued at around £133 million a year.",
+      "source": "Forest Research / RE:LEAF London Partnership, 'Valuing London's Urban Forest: Results of the London i-Tree Eco Project' (2015)",
+      "url": "https://www.forestresearch.gov.uk/research/i-tree-eco/i-tree-eco-projects-completed/i-tree-eco-london",
+      "source_type": "official survey (sample-based estimate)",
+      "confidence": "high",
+      "caveat": "A sample-based estimate from 2014, about 700 surveyed plots.",
+      "geography": "London"
+    },
+    {
+      "id": "EV-014",
+      "topic": "paved_ground",
+      "signals": ["nature", "concrete", "paving"],
+      "statement": "A 2015 Royal Horticultural Society survey found about 1 in 4 UK front gardens were completely paved over, and around half of London front gardens were paved. A later RHS survey (2020) found fewer front gardens fully paved than in 2015.",
+      "source": "Royal Horticultural Society, 'Greening Grey Britain' report (2015); RHS National Gardening Survey (2020)",
+      "url": "https://www.rhs.org.uk/science/articles/green-front-gardens",
+      "source_type": "charity-commissioned survey",
+      "confidence": "medium",
+      "caveat": "Survey-based; the trend has partly reversed since 2015, which is itself a positive signal.",
+      "geography": "UK / London"
+    },
+    {
+      "id": "EV-015",
+      "topic": "electronic_waste",
+      "signals": ["repair", "electronics", "positive"],
+      "statement": "The UK produces one of the highest amounts of electronic waste per person in the world, about 24 kg per person per year. Worldwide, only about 22% of e-waste was documented as properly collected and recycled in 2022.",
+      "source": "UN ITU / UNITAR, 'Global E-waste Monitor 2024'",
+      "url": "https://www.itu.int/en/ITU-D/Environment/Pages/Publications/The-Global-E-Waste-Monitor-2024.aspx",
+      "source_type": "UN report",
+      "confidence": "medium",
+      "caveat": "The global 22% figure is stated directly by the report (high). The UK per-person figure comes from the report's country data as summarised by secondary sources; check the country annex before quoting precisely.",
+      "geography": "UK / global"
+    }
+  ]
+}
