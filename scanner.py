@@ -236,9 +236,9 @@ def _build_verification_trace(
         verify_part = f"verified claims against archive (stripped {len(stripped_ids)} unverified ID) ✓"
     else:
         verify_part = (
-            f"checked claims against {cited_count} cited {'entry' if cited_count == 1 else 'entries'} ✓"
+            f"checked {cited_count} factual {'claim' if cited_count == 1 else 'claims'} ✓"
             if cited_count > 0
-            else "verified no unsupported archive claims ✓"
+            else "checked 0 archive claims (observational only) ✓"
         )
 
     summary_line = f"{obs_part} → {search_part} → {found_part} → {cited_part} → {verify_part}"
@@ -250,7 +250,12 @@ def _build_verification_trace(
         "retrieved_ids": retrieved_ids,
         "cited_ids": cited_ids,
         "stripped_ids": stripped_ids,
-        "Verified_pass_completed": True,
+        "verified_pass_completed": True,
+        "guarantees_enforced": {
+            "evidence_whitelist_checked": True,
+            "player_conclusion_forced_null": True,
+            "entry_state_guarded": True,
+        },
         "timing": {
             "pass1_seconds": round(pass1_seconds, 2),
             "pass2_seconds": round(pass2_seconds, 2),

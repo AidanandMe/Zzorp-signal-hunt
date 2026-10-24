@@ -1169,3 +1169,130 @@ details[open] .drawer-chevron {
   color: #fde047;
   margin-bottom: 0.4rem;
 }
+
+
+/* =========================================================================
+   MILESTONE 3: VERIFICATION TRACE & DEMO SPECIMEN SELECTOR
+   ========================================================================= */
+
+/* Demo Specimens Drawer on Screen 1 */
+.demo-specimens-drawer {
+  margin-top: 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.28);
+  border-radius: var(--radius-md);
+  background: rgba(15, 23, 42, 0.55);
+  overflow: hidden;
+}
+
+.demo-specimens-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.demo-specimens-summary::-webkit-details-marker {
+  display: none;
+}
+
+.demo-specimens-body {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.demo-specimens-hint {
+  margin: 0.65rem 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.demo-specimens-hint code {
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+}
+
+.demo-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.demo-fallback-divider {
+  margin: 0.8rem 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* Verification Trace Drawer on Screen 2 (Judge-facing) */
+.trace-drawer {
+  padding: 0;
+  overflow: hidden;
+  border-color: rgba(45, 212, 191, 0.3);
+  background: rgba(13, 21, 38, 0.9);
+}
+
+.trace-summary-inline {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent-teal);
+  background: rgba(45, 212, 191, 0.12);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+}
+
+.trace-content {
+  padding: 0.85rem 1.15rem 1.15rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.trace-pipeline-line {
+  margin: 0 0 0.85rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(9, 13, 26, 0.8);
+  border-left: 3px solid var(--accent-teal);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #e2e8f0;
+  line-height: 1.5;
+}
+
+.trace-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+}
+
+.trace-metric-box {
+  background: rgba(23, 33, 60, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+}
+
+.trace-metric-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.18rem;
+}
+
+.trace-metric-value {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  word-break: break-word;
+}

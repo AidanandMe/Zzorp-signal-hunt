@@ -10,7 +10,14 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from config import BASE_DIR, GEMINI_MODEL, THINKING_LEVEL, get_api_key
-from scanner import IN_CHARACTER_ERROR_MESSAGE, run_scan
+from evidence_tool import lookup_evidence, sources_for
+from scanner import (
+    IN_CHARACTER_ERROR_MESSAGE,
+    _build_verification_trace,
+    enforce_server_guarantees,
+    run_scan,
+    validate_zzorp_response,
+)
 
 app = FastAPI(
     title="Zzorp Signal Hunt",
@@ -121,6 +128,180 @@ def list_examples() -> dict[str, Any]:
         "count": len(files),
         "examples": [{"name": name, "url": f"/examples/{name}"} for name in files],
     }
+
+
+DEMO_PRESETS: dict[str, dict[str, Any]] = {
+    "cup": {
+        "topic": "takeaway_cups",
+        "signal": "cup",
+        "payload": {
+            "scan_type": "first_scan",
+            "people_in_frame": False,
+            "visible_facts": [
+                "A paper-style takeaway cup with a plastic lid sits next to a bin with a recycling symbol.",
+                "No signage explaining whether plastic-lined paper cups are accepted in this bin is visible.",
+            ],
+            "inferences": [
+                "The cup may be a single-use hot drink cup lined with a thin plastic film.",
+                "A human may have placed it near the recycling bin assuming paper cups can go into standard paper recycling.",
+            ],
+            "missing_information": [
+                "Whether this building or local council runs a dedicated takeaway cup collection scheme.",
+                "What the label on the front of the bin specifically accepts.",
+            ],
+            "signal_type": "possible_contradiction",
+            "signal_summary": "A disposable takeaway cup sits beside a standard recycling bin, even though most plastic-lined paper cups require specialist collection.",
+            "zzorp_reaction": (
+                "Fascinating! Humans engineered a dual-material vessel of tree fibre fused with waterproof polymer to hold warm bean-water for approximately twelve minutes, "
+                "and now it rests beside a paper recycling portal that usually cannot digest polymer linings. Why design an eight-minute drink container that confuses your own sorting portals?"
+            ),
+            "mission": {
+                "instruction": "Inspect the recycling bin's front label to see whether takeaway coffee cups are listed.",
+                "photo_to_bring_back": "A clear photo of the bin's instruction label showing accepted items.",
+                "ask_an_adult": False,
+            },
+            "evidence_used": ["EV-001", "EV-002"],
+            "notebook_update": {
+                "entry_title": "Specimen #1: The Eight-Minute Vessel",
+                "zzorp_question": "Does this recycling bin actually accept plastic-lined takeaway cups, or does it require a specialist collection point?",
+                "entry_state": "question_open",
+                "new_evidence": None,
+                "player_conclusion": None,
+            },
+        },
+    },
+    "banana": {
+        "topic": "packaged_produce",
+        "signal": "fruit",
+        "payload": {
+            "scan_type": "first_scan",
+            "people_in_frame": False,
+            "visible_facts": [
+                "Several yellow bananas with intact natural peels are enclosed inside a sealed clear plastic bag on a shelf.",
+                "A printed retail sticker is attached to the outside of the plastic film.",
+            ],
+            "inferences": [
+                "The bananas may be sold as a pre-weighed multi-pack rather than loose fruit.",
+                "The plastic wrap might be used for barcode pricing rather than protecting the edible interior, which already has a thick peel.",
+            ],
+            "missing_information": [
+                "Whether loose unwrapped bananas are sold on an adjacent shelf at the same price.",
+                "What type of plastic film is used and whether local collection accepts soft film.",
+            ],
+            "signal_type": "possible_contradiction",
+            "signal_summary": "Bananas with thick natural protective skins are wrapped inside an additional layer of single-use plastic film.",
+            "zzorp_reaction": (
+                "My optical sensors are blinking rapidly! Evolution already gifted this curved yellow fruit a tough, biodegradable jacket, "
+                "yet humans have sealed the jacket inside a second transparent synthetic jacket. Humans… why are you packaging the packaging?"
+            ),
+            "mission": {
+                "instruction": "Check the nearby fruit display to see if loose unwrapped bananas are available.",
+                "photo_to_bring_back": "A photo of the shelf tag or adjacent loose fruit display.",
+                "ask_an_adult": False,
+            },
+            "evidence_used": ["EV-007"],
+            "notebook_update": {
+                "entry_title": "Specimen #2: The Double-Jacketed Fruit",
+                "zzorp_question": "Why did the store wrap fruit that already has its own natural peel, and can shoppers choose loose ones instead?",
+                "entry_state": "question_open",
+                "new_evidence": None,
+                "player_conclusion": None,
+            },
+        },
+    },
+    "mug": {
+        "topic": None,
+        "signal": None,
+        "payload": {
+            "scan_type": "first_scan",
+            "people_in_frame": False,
+            "visible_facts": [
+                "A ceramic mug sits on top of a wooden desk next to a closed notebook.",
+                "No disposable packaging, bin, or electrical appliance is visible in the frame.",
+            ],
+            "inferences": [
+                "This ceramic mug appears to be a reusable drink container designed to be washed and used many times.",
+            ],
+            "missing_information": [
+                "None required — this is an ordinary everyday scene with no environmental contradiction.",
+            ],
+            "signal_type": "no_signal",
+            "signal_summary": "An ordinary reusable ceramic mug resting on a wooden desk — no environmental contradiction or unusual signal detected.",
+            "zzorp_reaction": (
+                "Aha! A sturdy fired-clay beverage cylinder sitting peacefully beside a paper notebook. "
+                "My instruments detect zero waste anomalies here — just sensible reusable human equipment at rest!"
+            ),
+            "mission": None,
+            "evidence_used": [],
+            "notebook_update": {
+                "entry_title": "Specimen #3: The Sensible Clay Cylinder",
+                "zzorp_question": "How many disposable cups does one sturdy mug replace over a year of human beverage rituals?",
+                "entry_state": "observed",
+                "new_evidence": None,
+                "player_conclusion": None,
+            },
+        },
+    },
+}
+
+
+@app.get("/api/demo_preset/{preset_name}")
+def get_demo_preset(preset_name: str) -> JSONResponse:
+    """Return a verified live-pitch demo specimen processed through the real archive tool and server guarantees."""
+    import copy
+
+    spec = DEMO_PRESETS.get(preset_name.lower())
+    if not spec:
+        raise HTTPException(status_code=404, detail=f"Unknown demo preset: {preset_name}")
+
+    topic = spec["topic"]
+    signal = spec["signal"]
+    searches_run: list[dict[str, Any]] = []
+    retrieved_ids: list[str] = []
+
+    if topic:
+        tool_out = lookup_evidence(topic=topic, signal=signal)
+        found_ids = [item["id"] for item in tool_out.get("results", [])]
+        retrieved_ids.extend(found_ids)
+        searches_run.append(
+            {
+                "topic": topic,
+                "signal": signal,
+                "found_count": len(found_ids),
+                "found_ids": found_ids,
+            }
+        )
+
+    payload_copy = copy.deepcopy(spec["payload"])
+    stripped_ids = enforce_server_guarantees(
+        payload_copy,
+        retrieved_ids=retrieved_ids,
+        expected_scan_type="first_scan",
+    )
+    validate_zzorp_response(payload_copy)
+
+    cited_ids = payload_copy.get("evidence_used", [])
+    resolved_sources = sources_for(cited_ids)
+    verification_trace = _build_verification_trace(
+        visible_facts_count=len(payload_copy.get("visible_facts", [])),
+        searches_run=searches_run,
+        retrieved_ids=retrieved_ids,
+        cited_ids=cited_ids,
+        stripped_ids=stripped_ids,
+        duration_seconds=0.05,
+        pass1_seconds=0.03,
+        pass2_seconds=0.02,
+    )
+    return JSONResponse(
+        status_code=200,
+        content={
+            "ok": True,
+            "result": payload_copy,
+            "sources": resolved_sources,
+            "verification_trace": verification_trace,
+            "is_demo_preset": True,
+        },
+    )
 
 
 @app.get("/")

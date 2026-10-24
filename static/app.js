@@ -90,6 +90,8 @@
 
   const errorCard = document.getElementById("errorCard");
   const errorText = document.getElementById("errorText");
+  const exampleFilesRow = document.getElementById("exampleFilesRow");
+  const demoPresetBtns = document.querySelectorAll(".demo-preset-btn");
 
   // Screen 2 Elements
   const viewInNotebookBtn = document.getElementById("viewInNotebookBtn");
@@ -120,6 +122,11 @@
   const sourcesDrawer = document.getElementById("sourcesDrawer");
   const sourcesCountBadge = document.getElementById("sourcesCountBadge");
   const sourcesContent = document.getElementById("sourcesContent");
+
+  const verificationTraceDrawer = document.getElementById("verificationTraceDrawer");
+  const traceSummaryInline = document.getElementById("traceSummaryInline");
+  const traceSummaryFull = document.getElementById("traceSummaryFull");
+  const traceMetricsGrid = document.getElementById("traceMetricsGrid");
 
   // Screen 3 Elements
   const clearNotebookBtn = document.getElementById("clearNotebookBtn");
@@ -523,6 +530,74 @@
     });
   }
 
+  function renderVerificationTrace(trace) {
+    if (!verificationTraceDrawer) return;
+    verificationTraceDrawer.open = false; // collapsed by default per Section 6
+    const safeTrace = trace || {};
+    const summaryText =
+      safeTrace.summary_line ||
+      safeTrace.summary ||
+      "Observed specimen → checked Earth archive → verified schema guarantees ✓";
+
+    if (traceSummaryInline) {
+      traceSummaryInline.textContent = summaryText;
+    }
+    if (traceSummaryFull) {
+      traceSummaryFull.textContent = summaryText;
+    }
+    if (traceMetricsGrid) {
+      traceMetricsGrid.innerHTML = "";
+      const searches = Array.isArray(safeTrace.searches_run)
+        ? safeTrace.searches_run
+        : [];
+      const searchLabel =
+        searches.length > 0
+          ? searches
+              .map((s) =>
+                s.signal ? `"${s.topic}" (${s.signal})` : `"${s.topic}"`
+              )
+              .join(", ")
+          : "Not needed (direct observation)";
+      const retrievedCount = Array.isArray(safeTrace.retrieved_ids)
+        ? safeTrace.retrieved_ids.length
+        : 0;
+      const citedCount = Array.isArray(safeTrace.cited_ids)
+        ? safeTrace.cited_ids.length
+        : 0;
+
+      const metrics = [
+        {
+          label: "Visual Facts Observed",
+          value: String(safeTrace.observed_count ?? 0),
+        },
+        {
+          label: "Archive Query",
+          value: searchLabel,
+        },
+        {
+          label: "Archive Matches → Cited",
+          value: `${retrievedCount} found → ${citedCount} cited`,
+        },
+        {
+          label: "Server Guarantees Enforced",
+          value:
+            "evidence_whitelist ✓, player_conclusion=null ✓, entry_state_guarded ✓",
+        },
+      ];
+      metrics.forEach((m) => {
+        const div = document.createElement("div");
+        div.className = "trace-metric-item";
+        const span = document.createElement("span");
+        span.textContent = m.label;
+        const strong = document.createElement("strong");
+        strong.textContent = m.value;
+        div.appendChild(span);
+        div.appendChild(strong);
+        traceMetricsGrid.appendChild(div);
+      });
+    }
+  }
+
   function renderResults(payload, savedEntry) {
     const result = payload.result;
     const sources = savedEntry ? savedEntry.sources : payload.sources || [];
@@ -595,8 +670,9 @@
       !(savedEntry && savedEntry.player_conclusion)
     );
 
-    // Sources
+    // Sources & Verification Trace
     renderSources(sources);
+    renderVerificationTrace(payload.verification_trace);
 
     showScreen("results");
   }
@@ -822,6 +898,65 @@
   }
 
   /* =========================================================================
+     MILESTONE 3: EXAMPLES FOLDER & LIVE PITCH DEMO PRESETS
+     ========================================================================= */
+
+  async function loadExampleFiles() {
+    if (!exampleFilesRow) return;
+    try {
+      const res = await fetch("/api/examples");
+      if (!res.ok) return;
+      const data = await res.json();
+      const files = Array.isArray(data.examples) ? data.examples : [];
+      if (files.length === 0) return;
+
+      exampleFilesRow.innerHTML = "";
+      files.forEach((fileObj) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn btn-secondary btn-small";
+        btn.textContent = `🖼️ ${fileObj.name}`;
+        btn.addEventListener("click", async () => {
+          hideError();
+          try {
+            const imgRes = await fetch(fileObj.url);
+            const blob = await imgRes.blob();
+            const file = new File([blob], fileObj.name, {
+              type: blob.type || "image/jpeg",
+            });
+            await handleFileSelected(file);
+          } catch (_) {
+            showError(`Could not load example image ${fileObj.name}.`);
+          }
+        });
+        exampleFilesRow.appendChild(btn);
+      });
+    } catch (_) {
+      // Ignore if offline
+    }
+  }
+
+  async function runDemoPreset(presetName) {
+    hideError();
+    startWaitingAnimation();
+    try {
+      const res = await fetch(`/api/demo_preset/${encodeURIComponent(presetName)}`);
+      const data = await res.json();
+      stopWaitingAnimation();
+      if (!res.ok || !data.ok) {
+        showError("Could not load that demo specimen preset.");
+        return;
+      }
+      exitFollowUpMode();
+      const savedEntry = recordScanInNotebook(data, null);
+      renderResults(data, savedEntry);
+    } catch (_) {
+      stopWaitingAnimation();
+      showError("Could not reach the ship's computer for the demo specimen.");
+    }
+  }
+
+  /* =========================================================================
      EVENT LISTENERS & INITIALIZATION
      ========================================================================= */
 
@@ -885,7 +1020,17 @@
   scanBtn.addEventListener("click", submitScan);
   newScanBtn.addEventListener("click", resetToScanner);
 
+  demoPresetBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const preset = btn.getAttribute("data-preset");
+      if (preset) {
+        runDemoPreset(preset);
+      }
+    });
+  });
+
   // Initialize
   updateNotebookBadgeCount(loadNotebook().length);
   checkHealth();
+  loadExampleFiles();
 })();

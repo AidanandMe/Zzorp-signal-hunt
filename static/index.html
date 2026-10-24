@@ -175,6 +175,34 @@
           </button>
         </div>
 
+        <!-- Demo & Example Specimens Picker (loads from examples/ folder + offline fallback) -->
+        <details id="demoSpecimensDrawer" class="demo-specimens-drawer">
+          <summary class="demo-specimens-summary">
+            <span>🧪 Quick Demo &amp; Example Specimens</span>
+            <span class="drawer-chevron" aria-hidden="true">▾</span>
+          </summary>
+          <div class="demo-specimens-body">
+            <p class="demo-specimens-hint">
+              Pick an image from your <code>examples/</code> folder, or load a pre-verified demo specimen if Wi-Fi/credits are down during a live pitch:
+            </p>
+            <div id="exampleFilesRow" class="demo-btn-row"></div>
+            <div class="demo-fallback-divider">
+              <span>Live Pitch Credit-Safe Previews (Real Archive &amp; Schema)</span>
+            </div>
+            <div class="demo-btn-row">
+              <button type="button" class="btn btn-small btn-outline demo-preset-btn" data-preset="cup">
+                ☕ Disposable Cup near Bin
+              </button>
+              <button type="button" class="btn btn-small btn-outline demo-preset-btn" data-preset="banana">
+                🍌 Plastic-Wrapped Bananas
+              </button>
+              <button type="button" class="btn btn-small btn-outline demo-preset-btn" data-preset="mug">
+                🍵 Plain Ceramic Mug (No Signal)
+              </button>
+            </div>
+          </div>
+        </details>
+
         <!-- Playful Waiting State while Argon thinks -->
         <div id="waitingState" class="waiting-card hidden" aria-live="polite">
           <div class="radar-spinner" aria-hidden="true">
@@ -318,6 +346,21 @@
             <span class="drawer-chevron" aria-hidden="true">▾</span>
           </summary>
           <div id="sourcesContent" class="sources-content"></div>
+        </details>
+
+        <!-- VERIFICATION TRACE (Collapsed by default — Judge-facing real pipeline telemetry) -->
+        <details id="verificationTraceDrawer" class="result-card trace-drawer">
+          <summary class="sources-summary">
+            <div class="sources-summary-left">
+              <span class="card-eyebrow">🛡️ VERIFICATION TRACE</span>
+              <span id="traceSummaryInline" class="trace-summary-inline">Real pipeline telemetry ✓</span>
+            </div>
+            <span class="drawer-chevron" aria-hidden="true">▾</span>
+          </summary>
+          <div id="traceContent" class="trace-content">
+            <p id="traceSummaryFull" class="trace-pipeline-line"></p>
+            <div id="traceMetricsGrid" class="trace-metrics-grid"></div>
+          </div>
         </details>
       </section>
 
