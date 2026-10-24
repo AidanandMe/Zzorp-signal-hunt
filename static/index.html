@@ -17,34 +17,58 @@
     <header class="site-header">
       <div class="brand-row">
         <div class="zzorp-avatar" aria-hidden="true">
-          <!-- Custom SVG Zzorp Alien Field Scientist -->
-          <svg viewBox="0 0 80 80" width="56" height="56" role="img" aria-label="Zzorp the alien">
+          <!-- Custom SVG Zzorp: Cute Yellow One-Eyed Alien with Teal Collar & Field Notebook -->
+          <svg viewBox="0 0 100 100" width="64" height="64" role="img" aria-label="Zzorp the cute yellow one-eyed alien">
             <defs>
-              <radialGradient id="zzorpGlow" cx="50%" cy="45%" r="50%">
-                <stop offset="0%" stop-color="#a3e635" />
-                <stop offset="100%" stop-color="#10b981" />
+              <radialGradient id="zzorpYellow" cx="42%" cy="35%" r="60%">
+                <stop offset="0%" stop-color="#fde047" />
+                <stop offset="65%" stop-color="#facc15" />
+                <stop offset="100%" stop-color="#d97706" />
+              </radialGradient>
+              <radialGradient id="zzorpEyeIris" cx="45%" cy="45%" r="55%">
+                <stop offset="0%" stop-color="#34d399" />
+                <stop offset="70%" stop-color="#059669" />
+                <stop offset="100%" stop-color="#064e3b" />
               </radialGradient>
             </defs>
-            <!-- Antennae -->
-            <path d="M26 22 Q20 8 14 11" stroke="#a3e635" stroke-width="3.5" stroke-linecap="round" fill="none" />
-            <circle cx="13" cy="11" r="5" fill="#38bdf8" />
-            <path d="M54 22 Q60 8 66 11" stroke="#a3e635" stroke-width="3.5" stroke-linecap="round" fill="none" />
-            <circle cx="67" cy="11" r="5" fill="#38bdf8" />
-            <!-- Head -->
-            <ellipse cx="40" cy="44" rx="26" ry="23" fill="url(#zzorpGlow)" stroke="#064e3b" stroke-width="2.5" />
-            <!-- Left Eye -->
-            <circle cx="29" cy="41" r="7.5" fill="#ffffff" stroke="#064e3b" stroke-width="2" />
-            <circle cx="30" cy="41" r="3.5" fill="#0f172a" />
-            <circle cx="31.5" cy="39.5" r="1.3" fill="#ffffff" />
-            <!-- Right Eye -->
-            <circle cx="51" cy="41" r="7.5" fill="#ffffff" stroke="#064e3b" stroke-width="2" />
-            <circle cx="50" cy="41" r="3.5" fill="#0f172a" />
-            <circle cx="51.5" cy="39.5" r="1.3" fill="#ffffff" />
-            <!-- Center Curious Third Eye -->
-            <circle cx="40" cy="29" r="5" fill="#ffffff" stroke="#064e3b" stroke-width="1.8" />
-            <circle cx="40" cy="29" r="2.2" fill="#0f172a" />
-            <!-- Curious / Puzzled Mouth -->
-            <path d="M33 54 Q40 51 47 55" stroke="#064e3b" stroke-width="2.8" stroke-linecap="round" fill="none" />
+            <!-- Left Antenna -->
+            <path d="M33 27 L23 14" stroke="#f59e0b" stroke-width="5.5" stroke-linecap="round" />
+            <circle cx="21" cy="12" r="6.5" fill="url(#zzorpYellow)" stroke="#b45309" stroke-width="2" />
+            <!-- Right Antenna -->
+            <path d="M58 24 L61 10" stroke="#f59e0b" stroke-width="5.5" stroke-linecap="round" />
+            <circle cx="62" cy="9" r="6.5" fill="url(#zzorpYellow)" stroke="#b45309" stroke-width="2" />
+            <!-- Waving Right Arm -->
+            <path d="M74 68 Q86 56 84 42" stroke="#f59e0b" stroke-width="8" stroke-linecap="round" fill="none" />
+            <circle cx="84" cy="40" r="5.5" fill="#facc15" stroke="#b45309" stroke-width="1.8" />
+            <!-- Body / Suit -->
+            <ellipse cx="48" cy="79" rx="24" ry="16" fill="url(#zzorpYellow)" stroke="#b45309" stroke-width="2.2" />
+            <!-- Round Head -->
+            <circle cx="46" cy="46" r="28" fill="url(#zzorpYellow)" stroke="#b45309" stroke-width="2.4" />
+            <!-- Head Highlight -->
+            <path d="M56 24 Q65 27 68 35" stroke="#fef08a" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.75" />
+            <!-- Giant Single Cyclops Eye -->
+            <circle cx="47" cy="41" r="14.5" fill="#fffbeb" stroke="#b45309" stroke-width="2.2" />
+            <circle cx="48" cy="41" r="9.5" fill="url(#zzorpEyeIris)" />
+            <circle cx="48.5" cy="41" r="5.2" fill="#0f172a" />
+            <!-- Eye Sparkles -->
+            <circle cx="51.5" cy="37.5" r="2.6" fill="#ffffff" />
+            <circle cx="45" cy="44" r="1.4" fill="#ffffff" />
+            <!-- Rosy Cheeks -->
+            <ellipse cx="29" cy="52" rx="5" ry="2.8" fill="#ef4444" opacity="0.75" />
+            <ellipse cx="64" cy="49" rx="5" ry="2.8" fill="#ef4444" opacity="0.75" />
+            <!-- Happy Open Mouth & Tongue -->
+            <path d="M39 54 Q48 57 56 52 Q56 63 47 63 Q39 63 39 54 Z" fill="#451a03" stroke="#451a03" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M42 60 Q48 56 53 60 Q51 63 47 63 Q43 63 42 60 Z" fill="#f87171" />
+            <!-- Teal Space Collar -->
+            <path d="M24 66 Q47 75 70 62" stroke="#0d9488" stroke-width="6.5" stroke-linecap="round" fill="none" />
+            <path d="M24 66 Q47 75 70 62" stroke="#2dd4bf" stroke-width="3" stroke-linecap="round" fill="none" />
+            <!-- Spiral Field Notebook -->
+            <rect x="52" y="68" width="24" height="20" rx="2.5" transform="rotate(-10 52 68)" fill="#e7e5e4" stroke="#57534e" stroke-width="2" />
+            <line x1="56" y1="73" x2="72" y2="70" stroke="#a8a29e" stroke-width="1.5" />
+            <line x1="57" y1="78" x2="73" y2="75" stroke="#a8a29e" stroke-width="1.5" />
+            <line x1="58" y1="83" x2="74" y2="80" stroke="#a8a29e" stroke-width="1.5" />
+            <!-- Left Hand Holding Notebook -->
+            <ellipse cx="52" cy="78" rx="6" ry="4.2" fill="#facc15" stroke="#b45309" stroke-width="1.8" />
           </svg>
         </div>
         <div class="brand-text">
@@ -53,6 +77,16 @@
         </div>
       </div>
       <p class="hero-tagline">Show Zzorp something humans have stopped noticing.</p>
+
+      <!-- Navigation Bar between Scanner and Field Notebook -->
+      <nav class="mode-nav" aria-label="Primary views">
+        <button id="navScannerBtn" type="button" class="nav-tab active">
+          📡 Signal Scanner
+        </button>
+        <button id="navNotebookBtn" type="button" class="nav-tab">
+          📓 Field Notebook <span id="notebookCountPill" class="nav-count-pill">0</span>
+        </button>
+      </nav>
     </header>
 
     <!-- API Key Setup Banner (shown only if .env still has placeholder) -->
@@ -64,11 +98,27 @@
       <!-- SCREEN 1: SIGNAL SCANNER -->
       <section id="scannerScreen" class="panel scanner-panel" aria-labelledby="scannerHeading">
         <div class="panel-header">
-          <span class="step-tag">SCREEN 1 • SIGNAL SCANNER</span>
+          <span id="scannerStepTag" class="step-tag">SCREEN 1 • SIGNAL SCANNER</span>
           <h2 id="scannerHeading">Capture or Choose an Earth Specimen</h2>
           <p class="panel-subtext">
-            Photos are resized in your browser to strip location metadata and are never saved to disk.
+            Photos are resized in your browser to strip location metadata and are never saved to disk or in the notebook.
           </p>
+        </div>
+
+        <!-- Follow-up Investigation Context Banner (shown only when uploading a follow-up photo) -->
+        <div id="followUpBanner" class="followup-banner hidden" role="region" aria-label="Active follow-up mission">
+          <div class="followup-banner-top">
+            <span class="followup-pill">🔎 FOLLOW-UP INVESTIGATION</span>
+            <button id="cancelFollowUpBtn" type="button" class="btn btn-small btn-outline">
+              ✕ Cancel Follow-up
+            </button>
+          </div>
+          <h3 id="followUpEntryTitle" class="followup-title"></h3>
+          <p id="followUpQuestion" class="followup-question"></p>
+          <div class="followup-target">
+            <strong>📸 Photo to bring back:</strong>
+            <span id="followUpPhotoTarget"></span>
+          </div>
         </div>
 
         <!-- Upload / Camera Controls -->
@@ -93,8 +143,8 @@
               <div class="reticle-icon">🔭</div>
               <span>⌞</span><span>⌟</span>
             </div>
-            <p class="upload-title">Point your scanner at an everyday human habit or object</p>
-            <p class="upload-hint">Packaging, bins, signs, lights, urban nature, or anything ordinary</p>
+            <p id="uploadTitleText" class="upload-title">Point your scanner at an everyday human habit or object</p>
+            <p id="uploadHintText" class="upload-hint">Packaging, bins, signs, lights, urban nature, or anything ordinary</p>
             <div class="upload-btn-group">
               <label for="cameraInput" class="btn btn-secondary">
                 📷 Take Photo
@@ -121,7 +171,7 @@
         <div class="scan-action-bar">
           <button id="scanBtn" type="button" class="btn btn-primary btn-large" disabled>
             <span class="btn-icon">📡</span>
-            <span>Transmit to Zzorp</span>
+            <span id="scanBtnLabel">Transmit to Zzorp</span>
           </button>
         </div>
 
@@ -153,13 +203,21 @@
       <!-- SCREEN 2: RESULTS -->
       <section id="resultsScreen" class="panel results-panel hidden" aria-labelledby="resultsHeading">
         <div class="results-top-bar">
-          <span class="step-tag">SCREEN 2 • FIELD REPORT</span>
-          <button id="newScanBtn" type="button" class="btn btn-outline btn-small">
-            🔄 Scan Another Specimen
-          </button>
+          <span id="resultsStepTag" class="step-tag">SCREEN 2 • FIELD REPORT</span>
+          <div class="results-top-actions">
+            <button id="viewInNotebookBtn" type="button" class="btn btn-outline btn-small">
+              📓 Open Notebook
+            </button>
+            <button id="newScanBtn" type="button" class="btn btn-outline btn-small">
+              🔄 Scan New Specimen
+            </button>
+          </div>
         </div>
 
-        <h2 id="resultsHeading" class="specimen-title">Specimen Analysis</h2>
+        <div class="specimen-title-row">
+          <h2 id="resultsHeading" class="specimen-title">Specimen Analysis</h2>
+          <span id="resultEntryStatePill" class="entry-state-pill">Observed</span>
+        </div>
 
         <!-- SIGNAL BADGE + SIGNAL SUMMARY -->
         <div id="signalCard" class="result-card signal-card">
@@ -177,6 +235,12 @@
             <span class="card-eyebrow">ZZORP SAYS</span>
           </div>
           <blockquote id="zzorpReaction" class="zzorp-quote"></blockquote>
+        </div>
+
+        <!-- NEW EVIDENCE GATHERED (Shown when scan_type === 'follow_up') -->
+        <div id="newEvidenceCard" class="result-card new-evidence-card hidden">
+          <div class="card-eyebrow">🔬 NEW EVIDENCE GATHERED FROM FOLLOW-UP PHOTO</div>
+          <p id="newEvidenceText" class="new-evidence-text"></p>
         </div>
 
         <!-- TWO-COLUMN BREAKDOWN: WHAT I CAN SEE & POSSIBLE INTERPRETATION -->
@@ -217,6 +281,31 @@
             <span class="photo-label">📸 Photo to bring back:</span>
             <span id="missionPhotoTarget" class="photo-target-text"></span>
           </div>
+          <div class="mission-action-row">
+            <button id="startFollowUpFromResultsBtn" type="button" class="btn btn-secondary">
+              📷 Upload Follow-up Photo
+            </button>
+          </div>
+        </div>
+
+        <!-- PLAYER CONCLUSION BOX (Player-owned — never written by AI) -->
+        <div id="resultConclusionCard" class="result-card conclusion-card">
+          <div class="card-eyebrow">✏️ YOUR FIELD CONCLUSION (HUMANS DECIDE, NOT ZZORP)</div>
+          <p id="resultZzorpQuestion" class="conclusion-question"></p>
+          <textarea
+            id="resultConclusionInput"
+            class="conclusion-textarea"
+            rows="3"
+            placeholder="Write what YOU conclude from this investigation…"
+          ></textarea>
+          <div class="conclusion-actions">
+            <button id="saveResultConclusionBtn" type="button" class="btn btn-primary btn-small">
+              💾 Save My Conclusion
+            </button>
+            <span id="resultConclusionSavedNote" class="conclusion-saved-note hidden">
+              ✓ Saved to Field Notebook (`player_concluded`)
+            </span>
+          </div>
         </div>
 
         <!-- ZZORP'S SOURCES (Collapsible Drawer using sources_for) -->
@@ -230,6 +319,33 @@
           </summary>
           <div id="sourcesContent" class="sources-content"></div>
         </details>
+      </section>
+
+      <!-- SCREEN 3: FIELD NOTEBOOK -->
+      <section id="notebookScreen" class="panel notebook-panel hidden" aria-labelledby="notebookHeading">
+        <div class="notebook-top-bar">
+          <div>
+            <span class="step-tag">SCREEN 3 • FIELD NOTEBOOK</span>
+            <h2 id="notebookHeading" class="specimen-title">Earth Investigation Log</h2>
+            <p class="panel-subtext">
+              Saved in your browser only. No photos are stored. Write your own conclusions as you gather evidence!
+            </p>
+          </div>
+          <button id="clearNotebookBtn" type="button" class="btn btn-outline btn-small">
+            🗑️ Clear Notebook
+          </button>
+        </div>
+
+        <div id="notebookEmptyState" class="notebook-empty">
+          <div class="empty-notebook-icon" aria-hidden="true">📓</div>
+          <h3>Your Field Notebook is empty</h3>
+          <p>Scan an everyday human object or habit to log your first Earth specimen!</p>
+          <button id="goToScannerFromEmptyBtn" type="button" class="btn btn-primary">
+            📡 Scan First Specimen
+          </button>
+        </div>
+
+        <div id="notebookEntriesList" class="notebook-entries-list"></div>
       </section>
     </main>
 

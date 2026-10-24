@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from config import BASE_DIR, GEMINI_MODEL, THINKING_LEVEL
+from config import BASE_DIR, GEMINI_MODEL, THINKING_LEVEL, get_api_key
 from scanner import IN_CHARACTER_ERROR_MESSAGE, run_scan
 
 app = FastAPI(
@@ -19,6 +19,8 @@ app = FastAPI(
 )
 
 STATIC_DIR = BASE_DIR / "static"
+EXAMPLES_DIR = BASE_DIR / "examples"
+EXAMPLES_DIR.mkdir(exist_ok=True)
 
 
 class ScanRequest(BaseModel):
@@ -29,9 +31,10 @@ class ScanRequest(BaseModel):
 
 
 def _is_api_key_configured() -> bool:
-    load_dotenv(BASE_DIR / ".env", override=True)
-    key = os.getenv("GEMINI_API_KEY", "").strip()
-    return bool(key and key != "PASTE_YOUR_GEMINI_API_KEY_HERE")
+    try:
+        return bool(get_api_key())
+    except RuntimeError:
+        return False
 
 
 @app.get("/api/health")
@@ -83,14 +86,41 @@ def api_scan(req: ScanRequest) -> JSONResponse:
             return JSONResponse(status_code=502, content=outcome)
         return JSONResponse(status_code=200, content=outcome)
     except Exception as exc:
+        err_str = str(exc)
+        friendly_msg = IN_CHARACTER_ERROR_MESSAGE
+        if "spending cap" in err_str.lower() or "billing" in err_str.lower():
+            friendly_msg = (
+                f"{IN_CHARACTER_ERROR_MESSAGE} "
+                "(Google AI Studio returned 429: Your billing account has exceeded its monthly spending cap at https://ai.studio/billing — please increase the cap or paste a new API key into .env.)"
+            )
+        elif "api_key_invalid" in err_str.lower() or "api key not valid" in err_str.lower():
+            friendly_msg = (
+                f"{IN_CHARACTER_ERROR_MESSAGE} "
+                "(Google AI Studio reported that the GEMINI_API_KEY in .env is invalid.)"
+            )
         return JSONResponse(
             status_code=500,
             content={
                 "ok": False,
-                "error_in_character": IN_CHARACTER_ERROR_MESSAGE,
-                "debug_reason": str(exc),
+                "error_in_character": friendly_msg,
+                "debug_reason": err_str,
             },
         )
+
+
+@app.get("/api/examples")
+def list_examples() -> dict[str, Any]:
+    """List example photos placed in the examples/ folder."""
+    allowed_exts = {".jpg", ".jpeg", ".png", ".webp"}
+    files = sorted(
+        f.name
+        for f in EXAMPLES_DIR.iterdir()
+        if f.is_file() and f.suffix.lower() in allowed_exts
+    )
+    return {
+        "count": len(files),
+        "examples": [{"name": name, "url": f"/examples/{name}"} for name in files],
+    }
 
 
 @app.get("/")
@@ -100,6 +130,7 @@ def serve_index() -> FileResponse:
 
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+app.mount("/examples", StaticFiles(directory=str(EXAMPLES_DIR)), name="examples")
 
 
 if __name__ == "__main__":

@@ -32,9 +32,28 @@ RAW_RESPONSE_SCHEMA = json.loads(RESPONSE_SCHEMA_PATH.read_text(encoding="utf-8"
 
 
 def get_api_key() -> str:
-    """Retrieve GEMINI_API_KEY from environment variables without logging it."""
-    load_dotenv(BASE_DIR / ".env", override=True)
+    """Retrieve GEMINI_API_KEY from environment variables or .env without logging it."""
+    env_path = BASE_DIR / ".env"
+    load_dotenv(env_path, override=True)
     key = os.getenv("GEMINI_API_KEY", "").strip()
+
+    # Fallback: if the user pasted a raw key directly into .env without 'GEMINI_API_KEY='
+    if (not key or key == "PASTE_YOUR_GEMINI_API_KEY_HERE") and env_path.exists():
+        for raw_line in env_path.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" in line:
+                k, v = line.split("=", 1)
+                if k.strip() == "GEMINI_API_KEY":
+                    candidate = v.strip().strip('"').strip("'")
+                    if candidate and candidate != "PASTE_YOUR_GEMINI_API_KEY_HERE":
+                        key = candidate
+                        break
+            elif line != "PASTE_YOUR_GEMINI_API_KEY_HERE":
+                key = line.strip('"').strip("'")
+                break
+
     if not key or key == "PASTE_YOUR_GEMINI_API_KEY_HERE":
         raise RuntimeError(
             "GEMINI_API_KEY is missing or still set to the placeholder in .env. "

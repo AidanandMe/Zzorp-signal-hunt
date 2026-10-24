@@ -117,9 +117,12 @@ def enforce_server_guarantees(
             )
             notebook["entry_state"] = replacement_state
 
-        # On follow_up scans, ensure entry_state is evidence_gathered
-        if data.get("scan_type") == "follow_up" and notebook.get("entry_state") not in ("evidence_gathered",):
-            notebook["entry_state"] = "evidence_gathered"
+        # On follow_up scans, ensure entry_state is evidence_gathered and new_evidence is populated
+        if data.get("scan_type") == "follow_up":
+            if notebook.get("entry_state") != "evidence_gathered":
+                notebook["entry_state"] = "evidence_gathered"
+            if not notebook.get("new_evidence"):
+                notebook["new_evidence"] = data.get("signal_summary") or "Follow-up photo examined."
 
     # Also strip any stray top-level player_conclusion if present
     if "player_conclusion" in data:
@@ -169,6 +172,15 @@ def _build_pass2_verification_prompt(
     else:
         evidence_block = "NONE (lookup_evidence was not called or returned 0 entries)."
 
+    state_rule = (
+        "Ensure `scan_type` is 'follow_up', `notebook_update.entry_state` is 'evidence_gathered', "
+        "`notebook_update.new_evidence` describes what this follow-up photo showed, "
+        "`notebook_update.player_conclusion` is null, and `zzorp_reaction` ends by asking the player what they conclude."
+        if scan_type == "follow_up"
+        else "Ensure `scan_type` is 'first_scan', `notebook_update.player_conclusion` is null, "
+        "and `notebook_update.entry_state` is NOT 'player_concluded' (use 'observed' or 'question_open')."
+    )
+
     prompt = (
         "FINAL VERIFICATION AND STRUCTURED JSON PASS.\n\n"
         f"Evidence entries retrieved during this scan:\n{evidence_block}\n\n"
@@ -179,7 +191,7 @@ def _build_pass2_verification_prompt(
         "3. Never state a specific number of years that plastic or any object lasts.\n"
         "4. If `people_in_frame` is true, ignore the person completely (do not describe them, their clothes, food, or actions).\n"
         "5. `evidence_used` may ONLY contain IDs from the retrieved evidence entries above that your response actually relies on.\n"
-        f"6. Ensure `scan_type` is '{scan_type}', `notebook_update.player_conclusion` is null, and `notebook_update.entry_state` is NOT 'player_concluded'.\n"
+        f"6. {state_rule}\n"
         "7. Respond ONLY with valid JSON matching the required response schema."
     )
     if retry_error:
@@ -286,6 +298,11 @@ def run_scan(
     t_start = time.perf_counter()
     api_key = get_api_key()
     client = genai.Client(api_key=api_key)
+    # Prevent 90-second multi-retry hangs when an API key hits a hard 429 billing/spending cap
+    try:
+        client.interactions.sdk_configuration.retry_config = None
+    except Exception:
+        pass
 
     tool_decl = _openapi_to_json_schema(
         copy.deepcopy({"type": "function", **LOOKUP_EVIDENCE_DECLARATION})
