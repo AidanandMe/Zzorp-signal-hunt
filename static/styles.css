@@ -1651,3 +1651,150 @@ details[open] .drawer-chevron {
   border-radius: 999px;
 }
 
+/* =========================================================================
+   SIMPLIFIED KID-FRIENDLY UI & REAL YELLOW ZZORP STICKERS
+   ========================================================================= */
+
+.zzorp-sticker-inline {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
+}
+
+.header-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.header-controls-row .mode-nav {
+  flex: 1;
+  margin-top: 0;
+  min-width: 220px;
+}
+
+.header-controls-row .score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.score-pill-sep {
+  opacity: 0.55;
+  margin: 0 0.1rem;
+}
+
+/* 3-Step Visual Onboarding Strip on Screen 1 */
+.how-it-works-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.12), rgba(56, 189, 248, 0.12));
+  border: 1.5px solid rgba(250, 204, 21, 0.38);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.15rem;
+  flex-wrap: wrap;
+}
+
+.how-step {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+  color: #f8fafc;
+}
+
+.how-step-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.how-step-text strong {
+  color: #fde047;
+  font-family: var(--font-display);
+}
+
+.how-step-arrow {
+  color: rgba(250, 204, 21, 0.7);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+  .how-it-works-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+  }
+  .how-step-arrow {
+    display: none;
+  }
+}
+
+/* Preview Actions when a photo is selected */
+.preview-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.preview-actions .btn-large {
+  width: 100%;
+  max-width: 340px;
+}
+
+/* Collapsible Scanner Clues Drawer on Screen 2 */
+.clues-drawer {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.clues-drawer .clues-drawer-body {
+  padding: 0 1.15rem 1.15rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.clues-drawer .observation-grid {
+  margin-top: 0.95rem;
+}
+
+/* Badge Card layout in Field Notebook */
+.nb-progress-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.badge-card {
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.badge-status {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.badge-card.unlocked .badge-status {
+  color: #d9f99d;
+  font-weight: 600;
+}
+
+

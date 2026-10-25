@@ -209,6 +209,7 @@
   const notebookScreen = document.getElementById("notebookScreen");
 
   // Screen 1 Elements
+  const howItWorksStrip = document.getElementById("howItWorksStrip");
   const scannerStepTag = document.getElementById("scannerStepTag");
   const scannerHeading = document.getElementById("scannerHeading");
   const followUpBanner = document.getElementById("followUpBanner");
@@ -252,6 +253,7 @@
   const speakReactionBtn = document.getElementById("speakReactionBtn");
   const newEvidenceCard = document.getElementById("newEvidenceCard");
   const newEvidenceText = document.getElementById("newEvidenceText");
+  const cluesDrawer = document.getElementById("cluesDrawer");
   const visibleFactsList = document.getElementById("visibleFactsList");
   const inferencesList = document.getElementById("inferencesList");
   const missingInfoList = document.getElementById("missingInfoList");
@@ -465,7 +467,7 @@
       const unlockedCount = Array.isArray(safeState.unlocked_badges)
         ? safeState.unlocked_badges.length
         : 0;
-      headerBadgesCount.textContent = `${unlockedCount} / ${BADGE_DEFINITIONS.length} Badges`;
+      headerBadgesCount.textContent = `${unlockedCount}/${BADGE_DEFINITIONS.length}`;
     }
     if (voiceToggleBtn) {
       const isOn = Boolean(safeState.voice_enabled);
@@ -928,9 +930,13 @@
     scanBtn.disabled = true;
     hideError();
 
-    scannerStepTag.textContent = "SCREEN 1 • FOLLOW-UP INVESTIGATION";
-    scannerHeading.textContent = "Bring Back Follow-up Evidence";
-    scanBtnLabel.textContent = "Transmit Follow-up to Zzorp";
+    if (howItWorksStrip) howItWorksStrip.classList.add("hidden");
+    if (scannerStepTag) {
+      scannerStepTag.textContent = "FOLLOW-UP MISSION";
+      scannerStepTag.classList.remove("hidden");
+    }
+    scannerHeading.textContent = "Bring Back Your Follow-Up Clue!";
+    scanBtnLabel.textContent = "Send Follow-Up Clue to Zzorp!";
 
     followUpEntryTitle.textContent = entry.entry_title;
     followUpQuestion.textContent = `Open Question: ${entry.zzorp_question}`;
@@ -944,9 +950,10 @@
 
   function exitFollowUpMode() {
     activeFollowUpEntryId = null;
-    scannerStepTag.textContent = "SCREEN 1 • SIGNAL SCANNER";
-    scannerHeading.textContent = "Capture or Choose an Earth Specimen";
-    scanBtnLabel.textContent = "Transmit to Zzorp";
+    if (howItWorksStrip) howItWorksStrip.classList.remove("hidden");
+    if (scannerStepTag) scannerStepTag.classList.add("hidden");
+    scannerHeading.textContent = "What should Zzorp scan today?";
+    scanBtnLabel.textContent = "Scan with Zzorp!";
     followUpBanner.classList.add("hidden");
   }
 
@@ -1178,7 +1185,8 @@
       !(savedEntry && savedEntry.player_conclusion)
     );
 
-    // Sources & Verification Trace
+    // Sources, Clues Drawer & Verification Trace
+    if (cluesDrawer) cluesDrawer.open = false;
     renderSources(sources);
     renderVerificationTrace(payload.verification_trace);
 
@@ -1232,7 +1240,7 @@
     if (nbTotalPoints) {
       nbTotalPoints.textContent = String(gameState.total_points || 0);
     }
-    renderBadgesGrid(gameState.badges_unlocked || []);
+    renderBadgesGrid(gameState.unlocked_badges || []);
 
     notebookEntriesList.innerHTML = "";
     if (entries.length === 0) {
@@ -1611,7 +1619,7 @@
       saveGameState({
         total_points: 0,
         awarded_events_by_entry: {},
-        badges_unlocked: [],
+        unlocked_badges: [],
         voice_enabled: loadGameState().voice_enabled,
       });
       if (celebrationBanner) {
