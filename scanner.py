@@ -154,7 +154,8 @@ def _build_pass1_prompt(scan_type: str, previous_entry: dict[str, Any] | None) -
             "   - Sentence 1: An excited 'AHA!' reaction to the field partner's new photo;\n"
             "   - Sentence 2: What the new evidence changed or clarified in your thinking;\n"
             "   - Sentence 3: A fun question handing the conclusion back to the player, such as 'What do YOU think now, field partner?'\n"
-            "6. Never conclude for the player, never invent facts or contradictions, and never mention points or scores."
+            "6. Never conclude for the player, never invent facts or contradictions, and never mention points or scores.\n"
+            "7. Keep your Pass 1 notes brief (short bullet points under 60 words); Pass 2 will produce the final JSON."
         )
     return (
         "FIRST SCAN (scan_type must be 'first_scan').\n"
@@ -164,7 +165,8 @@ def _build_pass1_prompt(scan_type: str, previous_entry: dict[str, Any] | None) -
         "3. Classify honestly (`possible_contradiction`, `positive_signal`, `insufficient_evidence`, or `no_signal`). "
         "Remember: `no_signal` and `insufficient_evidence` are good, valid answers — never invent a problem.\n"
         "4. If any environmental fact, figure, law, or recycling rule might apply, call `lookup_evidence` first. "
-        "Never state an environmental fact without calling `lookup_evidence`."
+        "Never state an environmental fact without calling `lookup_evidence`.\n"
+        "5. Keep your Pass 1 notes brief (short bullet points under 60 words); Pass 2 will produce the final JSON."
     )
 
 
@@ -417,7 +419,7 @@ def run_scan(
             previous_interaction_id=interaction.id,
             input=function_results,
             tools=[tool_decl],
-            generation_config=GENERATION_CONFIG,
+            generation_config={"thinking_level": THINKING_LEVEL, "max_output_tokens": 600},
         )
 
     t_pass1_end = time.perf_counter()
@@ -454,13 +456,13 @@ def run_scan(
                     response_format={
                         "type": "text",
                         "mime_type": "application/json",
-                        "schema": JSON_VALIDATOR_SCHEMA,
+                        "schema": RAW_RESPONSE_SCHEMA,
                     },
                     generation_config=GENERATION_CONFIG,
                 )
             except Exception as schema_exc:
-                # Fallback to RAW_RESPONSE_SCHEMA if endpoint prefers OpenAPI nullable
-                logger.info("Retrying response_format with RAW_RESPONSE_SCHEMA (%s)", schema_exc)
+                # Fallback to JSON_VALIDATOR_SCHEMA if needed
+                logger.info("Retrying response_format with JSON_VALIDATOR_SCHEMA (%s)", schema_exc)
                 final_interaction = client.interactions.create(
                     model=GEMINI_MODEL,
                     system_instruction=SYSTEM_PROMPT,
@@ -469,7 +471,7 @@ def run_scan(
                     response_format={
                         "type": "text",
                         "mime_type": "application/json",
-                        "schema": RAW_RESPONSE_SCHEMA,
+                        "schema": JSON_VALIDATOR_SCHEMA,
                     },
                     generation_config=GENERATION_CONFIG,
                 )

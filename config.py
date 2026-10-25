@@ -14,8 +14,8 @@ load_dotenv(BASE_DIR / ".env")
 GEMINI_MODEL = "gemini-4-argon"
 
 # Thinking level configuration (do NOT set temperature, top_p, or top_k)
-THINKING_LEVEL = os.getenv("ZZORP_THINKING_LEVEL", "medium")
-MAX_OUTPUT_TOKENS = 32768
+THINKING_LEVEL = os.getenv("ZZORP_THINKING_LEVEL", "low")
+MAX_OUTPUT_TOKENS = 4096
 
 GENERATION_CONFIG = {
     "thinking_level": THINKING_LEVEL,

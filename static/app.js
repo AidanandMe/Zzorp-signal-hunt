@@ -11,8 +11,8 @@
 (function () {
   "use strict";
 
-  const MAX_DIMENSION = 1600;
-  const JPEG_QUALITY = 0.85;
+  const MAX_DIMENSION = 1024;
+  const JPEG_QUALITY = 0.80;
   const NOTEBOOK_STORAGE_KEY = "zzorp_field_notebook_v1";
   const GAME_STORAGE_KEY = "zzorp_game_state_v1";
 
