@@ -94,14 +94,20 @@
           </button>
         </nav>
 
-        <button id="headerPointsBtn" type="button" class="score-pill" title="Open your Field Notebook to see Points & Badges">
-          <span aria-hidden="true">⚡</span>
-          <strong id="headerPointsValue">0</strong>
-          <span>pts</span>
-          <span class="score-pill-sep" aria-hidden="true">•</span>
-          <span aria-hidden="true">🏅</span>
-          <span id="headerBadgesCount">0/5</span>
-        </button>
+        <div class="header-right-pills">
+          <button id="headerPointsBtn" type="button" class="score-pill" title="Open your Field Notebook to see Points & Badges">
+            <span aria-hidden="true">⚡</span>
+            <strong id="headerPointsValue">0</strong>
+            <span>pts</span>
+            <span class="score-pill-sep" aria-hidden="true">•</span>
+            <span aria-hidden="true">🏅</span>
+            <span id="headerBadgesCount">0/5</span>
+          </button>
+
+          <button id="soundToggleBtn" type="button" class="sound-pill" aria-pressed="true" title="Turn Zzorp sound effects on or off">
+            🔊 Sound
+          </button>
+        </div>
       </div>
     </header>
 
@@ -231,6 +237,9 @@
           <div class="radar-spinner" aria-hidden="true">
             <div class="radar-sweep"></div>
             <div class="radar-dot"></div>
+          </div>
+          <div class="waiting-timer-row">
+            <span id="waitingTimerBadge" class="waiting-timer-badge">⏱️ 0s</span>
           </div>
           <p id="waitingMessage" class="waiting-status">Looking closely at your photo…</p>
           <div class="waiting-steps" aria-hidden="true">

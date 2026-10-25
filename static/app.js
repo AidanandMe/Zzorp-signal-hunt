@@ -196,6 +196,7 @@
   const headerBadgesBtn = document.getElementById("headerBadgesBtn");
   const headerBadgesCount = document.getElementById("headerBadgesCount");
   const voiceToggleBtn = document.getElementById("voiceToggleBtn");
+  const soundToggleBtn = document.getElementById("soundToggleBtn");
 
   const celebrationBanner = document.getElementById("celebrationBanner");
   const celebrationPointsHeadline = document.getElementById("celebrationPointsHeadline");
@@ -229,6 +230,7 @@
   const scanBtn = document.getElementById("scanBtn");
   const scanBtnLabel = document.getElementById("scanBtnLabel");
   const waitingState = document.getElementById("waitingState");
+  const waitingTimerBadge = document.getElementById("waitingTimerBadge");
   const waitingMessage = document.getElementById("waitingMessage");
   const waitDots = [
     document.getElementById("waitDot0"),
@@ -289,9 +291,11 @@
   // In-memory state
   let currentBase64Jpeg = null;
   let waitingTimer = null;
+  let waitingSeconds = 0;
   let activeFollowUpEntryId = null; // non-null when scanning a follow-up photo for an existing notebook entry
   let currentResultEntryId = null; // ID of the notebook entry currently shown on Screen 2
   let lastCelebrationSpeechText = "";
+  let audioCtx = null;
 
   /* =========================================================================
      FIELD NOTEBOOK & GAME LAYER STORAGE (localStorage — never stores images)
@@ -326,6 +330,7 @@
           awarded_events_by_entry: {},
           unlocked_badges: [],
           voice_enabled: false,
+          sound_enabled: true,
         };
       }
       const parsed = JSON.parse(raw);
@@ -337,6 +342,7 @@
             : {},
         unlocked_badges: Array.isArray(parsed.unlocked_badges) ? parsed.unlocked_badges : [],
         voice_enabled: Boolean(parsed.voice_enabled),
+        sound_enabled: parsed.sound_enabled !== false,
       };
     } catch (_) {
       return {
@@ -344,6 +350,7 @@
         awarded_events_by_entry: {},
         unlocked_badges: [],
         voice_enabled: false,
+        sound_enabled: true,
       };
     }
   }
@@ -474,6 +481,149 @@
       voiceToggleBtn.setAttribute("aria-pressed", isOn ? "true" : "false");
       voiceToggleBtn.textContent = isOn ? "🔊 Voice: On" : "🔇 Voice: Off";
     }
+    if (soundToggleBtn) {
+      const sOn = safeState.sound_enabled !== false;
+      soundToggleBtn.setAttribute("aria-pressed", sOn ? "true" : "false");
+      soundToggleBtn.textContent = sOn ? "🔊 Sound" : "🔇 Mute";
+    }
+  }
+
+  /* =========================================================================
+     PLAYFUL WEB AUDIO SYNTHESIZER (Zero external audio files, 100% fail-safe)
+     ========================================================================= */
+
+  function getAudioContext() {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      if (!audioCtx) {
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function isSoundEnabled() {
+    return loadGameState().sound_enabled !== false;
+  }
+
+  function playPopSound() {
+    if (!isSoundEnabled()) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(420, now);
+      osc.frequency.exponentialRampToValueAtTime(720, now + 0.075);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.085);
+    } catch (_) {
+      // Ignore audio errors
+    }
+  }
+
+  function playChronometerTick(sec) {
+    if (!isSoundEnabled()) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      // Alternating high/low clockwork tick-tock
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      const baseFreq = sec % 2 === 1 ? 860 : 640;
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.75, now + 0.035);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.045);
+
+      // Gentle alien radar blip every 3 seconds when status step advances
+      if (sec > 0 && sec % 3 === 0) {
+        const ping = ctx.createOscillator();
+        const pingGain = ctx.createGain();
+        ping.type = "sine";
+        ping.frequency.setValueAtTime(1180, now + 0.06);
+        ping.frequency.exponentialRampToValueAtTime(1480, now + 0.18);
+        pingGain.gain.setValueAtTime(0.045, now + 0.06);
+        pingGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        ping.connect(pingGain);
+        pingGain.connect(ctx.destination);
+        ping.start(now + 0.06);
+        ping.stop(now + 0.23);
+      }
+    } catch (_) {
+      // Ignore audio errors
+    }
+  }
+
+  function playCelebrationBells(hasBadge) {
+    if (!isSoundEnabled()) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      // Happy bell arpeggio (C5 - E5 - G5 - C6), plus extra sparkle if badge unlocked
+      const notes = hasBadge
+        ? [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98]
+        : [523.25, 659.25, 783.99, 1046.5];
+
+      notes.forEach((freq, idx) => {
+        const start = now + idx * 0.075;
+        const duration = idx === notes.length - 1 ? 0.32 : 0.16;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.09, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + duration + 0.02);
+      });
+    } catch (_) {
+      // Ignore audio errors
+    }
+  }
+
+  function playErrorFizz() {
+    if (!isSoundEnabled()) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(360, now);
+      osc.frequency.linearRampToValueAtTime(170, now + 0.24);
+      gain.gain.setValueAtTime(0.055, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.27);
+    } catch (_) {
+      // Ignore audio errors
+    }
   }
 
   /* =========================================================================
@@ -564,6 +714,9 @@
     if (celebrationBanner) {
       celebrationBanner.classList.remove("hidden");
     }
+
+    // Play cheerful bell chime for points / badge reward
+    playCelebrationBells(badgesList.length > 0);
 
     // Only speak automatically if the user has explicitly turned "Voice: On"
     const gameState = loadGameState();
@@ -770,11 +923,15 @@
 
     saveNotebook(entries);
     const newlyUnlockedBadges = syncGameStateWithNotebook(entries, false);
-    triggerCelebration(
-      newlyAwardedEvents,
-      newlyUnlockedBadges,
-      "Awesome! I saved your answer in our Field Notebook!"
-    );
+    if (newlyAwardedEvents.length === 0 && newlyUnlockedBadges.length === 0) {
+      playPopSound();
+    } else {
+      triggerCelebration(
+        newlyAwardedEvents,
+        newlyUnlockedBadges,
+        "Awesome! I saved your answer in our Field Notebook!"
+      );
+    }
     return entries[idx];
   }
 
@@ -857,6 +1014,7 @@
       emptyUploadPrompt.classList.add("hidden");
       previewContainer.classList.remove("hidden");
       scanBtn.disabled = false;
+      playPopSound();
     } catch (err) {
       showError(err.message || "Could not prepare that photo for scanning.");
     }
@@ -868,16 +1026,29 @@
 
   function startWaitingAnimation() {
     let idx = 0;
+    waitingSeconds = 0;
+    if (waitingTimerBadge) {
+      waitingTimerBadge.textContent = "⏱️ 0s";
+    }
     waitingMessage.textContent = WAITING_MESSAGES[0];
     waitDots.forEach((d, i) => d.classList.toggle("active", i === 0));
     waitingState.classList.remove("hidden");
+    playChronometerTick(0);
 
     if (waitingTimer) clearInterval(waitingTimer);
     waitingTimer = setInterval(() => {
-      idx = (idx + 1) % WAITING_MESSAGES.length;
-      waitingMessage.textContent = WAITING_MESSAGES[idx];
-      waitDots.forEach((d, i) => d.classList.toggle("active", i === idx));
-    }, 2400);
+      waitingSeconds += 1;
+      if (waitingTimerBadge) {
+        waitingTimerBadge.textContent = `⏱️ ${waitingSeconds}s`;
+      }
+      playChronometerTick(waitingSeconds);
+
+      if (waitingSeconds % 3 === 0) {
+        idx = (idx + 1) % WAITING_MESSAGES.length;
+        waitingMessage.textContent = WAITING_MESSAGES[idx];
+        waitDots.forEach((d, i) => d.classList.toggle("active", i === idx));
+      }
+    }, 1000);
   }
 
   function stopWaitingAnimation() {
@@ -891,6 +1062,7 @@
   function showError(msg) {
     errorText.textContent = msg;
     errorCard.classList.remove("hidden");
+    playErrorFizz();
   }
 
   function hideError() {
@@ -1573,6 +1745,19 @@
       }
     });
   }
+  if (soundToggleBtn) {
+    soundToggleBtn.addEventListener("click", () => {
+      const state = loadGameState();
+      state.sound_enabled = state.sound_enabled === false;
+      saveGameState(state);
+      updateHeaderGameStatus(state);
+      if (state.sound_enabled) {
+        playPopSound();
+      } else if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    });
+  }
   if (celebrationCloseBtn) {
     celebrationCloseBtn.addEventListener("click", () => {
       if (celebrationBanner) {
@@ -1615,12 +1800,14 @@
 
   clearNotebookBtn.addEventListener("click", () => {
     if (window.confirm("Clear all entries, Signal Points, and Badges in your Field Notebook?")) {
+      const prevState = loadGameState();
       saveNotebook([]);
       saveGameState({
         total_points: 0,
         awarded_events_by_entry: {},
         unlocked_badges: [],
-        voice_enabled: loadGameState().voice_enabled,
+        voice_enabled: prevState.voice_enabled,
+        sound_enabled: prevState.sound_enabled,
       });
       if (celebrationBanner) {
         celebrationBanner.classList.add("hidden");
