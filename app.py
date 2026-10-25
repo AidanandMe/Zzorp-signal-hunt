@@ -152,32 +152,32 @@ DEMO_PRESETS: dict[str, dict[str, Any]] = {
             "scan_type": "first_scan",
             "people_in_frame": False,
             "visible_facts": [
-                "A paper-style takeaway cup with a plastic lid sits next to a bin with a recycling symbol.",
-                "No signage explaining whether plastic-lined paper cups are accepted in this bin is visible.",
+                "A paper takeaway cup with a plastic lid is sitting next to a recycling bin.",
+                "We cannot see a sign showing if coffee cups are allowed in this bin.",
             ],
             "inferences": [
-                "The cup may be a single-use hot drink cup lined with a thin plastic film.",
-                "A human may have placed it near the recycling bin assuming paper cups can go into standard paper recycling.",
+                "This cup probably has a thin plastic layer inside so hot drinks do not leak through the paper.",
+                "Someone might have put it near the recycling bin thinking all paper cups go in normal paper recycling.",
             ],
             "missing_information": [
-                "Whether this building or local council runs a dedicated takeaway cup collection scheme.",
-                "What the label on the front of the bin specifically accepts.",
+                "Whether this place has a special bin just for takeaway cups.",
+                "What the sticker on the front of the bin says is allowed inside.",
             ],
             "signal_type": "possible_contradiction",
-            "signal_summary": "A disposable takeaway cup sits beside a standard recycling bin, even though most plastic-lined paper cups require specialist collection.",
+            "signal_summary": "A takeaway cup is sitting next to a normal recycling bin, even though most paper cups have a hidden plastic layer inside and need a special bin.",
             "zzorp_reaction": (
-                "Fascinating! Humans engineered a dual-material vessel of tree fibre fused with waterproof polymer to hold warm bean-water for approximately twelve minutes, "
-                "and now it rests beside a paper recycling portal that usually cannot digest polymer linings. Why design an eight-minute drink container that confuses your own sorting portals?"
+                "Beep-boop, wait a second! Humans made a cup out of tree paper glued to a thin plastic layer just to hold a warm drink for ten minutes, "
+                "and now it is sitting by a normal paper bin that usually cannot recycle it! Why make a ten-minute cup that tricks your own recycling bins?"
             ),
             "mission": {
-                "instruction": "Inspect the recycling bin's front label to see whether takeaway coffee cups are listed.",
-                "photo_to_bring_back": "A clear photo of the bin's instruction label showing accepted items.",
+                "instruction": "Check the label on the front of the recycling bin to see if takeaway coffee cups are allowed.",
+                "photo_to_bring_back": "A clear photo of the bin's label showing what can go inside.",
                 "ask_an_adult": False,
             },
             "evidence_used": ["EV-001", "EV-002"],
             "notebook_update": {
-                "entry_title": "Specimen #1: The Eight-Minute Vessel",
-                "zzorp_question": "Does this recycling bin actually accept plastic-lined takeaway cups, or does it require a specialist collection point?",
+                "entry_title": "Mystery #1: The Ten-Minute Cup",
+                "zzorp_question": "Does this recycling bin actually take paper coffee cups, or do they need a special cup bin?",
                 "entry_state": "question_open",
                 "new_evidence": None,
                 "player_conclusion": None,
@@ -191,32 +191,32 @@ DEMO_PRESETS: dict[str, dict[str, Any]] = {
             "scan_type": "first_scan",
             "people_in_frame": False,
             "visible_facts": [
-                "Several yellow bananas with intact natural peels are enclosed inside a sealed clear plastic bag on a shelf.",
-                "A printed retail sticker is attached to the outside of the plastic film.",
+                "Yellow bananas with their own thick skins are sealed inside a clear plastic bag.",
+                "A price sticker is stuck to the outside of the plastic bag.",
             ],
             "inferences": [
-                "The bananas may be sold as a pre-weighed multi-pack rather than loose fruit.",
-                "The plastic wrap might be used for barcode pricing rather than protecting the edible interior, which already has a thick peel.",
+                "The shop is probably selling these bananas together as one pack.",
+                "The plastic bag might just be there to hold the price sticker, since bananas already have tough peels.",
             ],
             "missing_information": [
-                "Whether loose unwrapped bananas are sold on an adjacent shelf at the same price.",
-                "What type of plastic film is used and whether local collection accepts soft film.",
+                "Whether loose bananas without plastic bags are sold right next to them.",
+                "Whether this soft plastic bag can be recycled at the store.",
             ],
             "signal_type": "possible_contradiction",
-            "signal_summary": "Bananas with thick natural protective skins are wrapped inside an additional layer of single-use plastic film.",
+            "signal_summary": "Bananas already grow their own thick natural wrapper, but someone put them inside an extra plastic bag anyway.",
             "zzorp_reaction": (
-                "My optical sensors are blinking rapidly! Evolution already gifted this curved yellow fruit a tough, biodegradable jacket, "
-                "yet humans have sealed the jacket inside a second transparent synthetic jacket. Humans… why are you packaging the packaging?"
+                "My big eye is blinking super fast! Nature already gave this yellow fruit a tough, stretchy peel to keep it safe, "
+                "but humans zipped that peel inside a second plastic bag! Humans… why did you put a wrapper on top of a wrapper?"
             ),
             "mission": {
-                "instruction": "Check the nearby fruit display to see if loose unwrapped bananas are available.",
-                "photo_to_bring_back": "A photo of the shelf tag or adjacent loose fruit display.",
+                "instruction": "Look at the fruit shelf nearby to see if you can buy loose bananas without a plastic bag.",
+                "photo_to_bring_back": "A photo of the shelf showing loose fruit or the price sign.",
                 "ask_an_adult": False,
             },
             "evidence_used": ["EV-007"],
             "notebook_update": {
-                "entry_title": "Specimen #2: The Double-Jacketed Fruit",
-                "zzorp_question": "Why did the store wrap fruit that already has its own natural peel, and can shoppers choose loose ones instead?",
+                "entry_title": "Mystery #2: The Double-Wrapped Banana",
+                "zzorp_question": "Why did the shop wrap fruit that already has its own skin, and can shoppers pick loose bananas instead?",
                 "entry_state": "question_open",
                 "new_evidence": None,
                 "player_conclusion": None,
@@ -230,26 +230,26 @@ DEMO_PRESETS: dict[str, dict[str, Any]] = {
             "scan_type": "first_scan",
             "people_in_frame": False,
             "visible_facts": [
-                "A ceramic mug sits on top of a wooden desk next to a closed notebook.",
-                "No disposable packaging, bin, or electrical appliance is visible in the frame.",
+                "A sturdy mug is sitting on a wooden desk next to a closed notebook.",
+                "There are no throw-away wrappers or bins in the photo.",
             ],
             "inferences": [
-                "This ceramic mug appears to be a reusable drink container designed to be washed and used many times.",
+                "This mug can be washed and used again and again instead of being thrown away.",
             ],
             "missing_information": [
-                "None required — this is an ordinary everyday scene with no environmental contradiction.",
+                "No extra clues needed — everything looks normal and easy to understand!",
             ],
             "signal_type": "no_signal",
-            "signal_summary": "An ordinary reusable ceramic mug resting on a wooden desk — no environmental contradiction or unusual signal detected.",
+            "signal_summary": "A normal reusable mug sitting on a desk — no weird waste mystery here!",
             "zzorp_reaction": (
-                "Aha! A sturdy fired-clay beverage cylinder sitting peacefully beside a paper notebook. "
-                "My instruments detect zero waste anomalies here — just sensible reusable human equipment at rest!"
+                "Aha! A strong mug sitting nicely next to a notebook. "
+                "My scanner sees zero trash mysteries here — just a clever cup that humans can wash and use hundreds of times!"
             ),
             "mission": None,
             "evidence_used": [],
             "notebook_update": {
-                "entry_title": "Specimen #3: The Sensible Clay Cylinder",
-                "zzorp_question": "How many disposable cups does one sturdy mug replace over a year of human beverage rituals?",
+                "entry_title": "Mystery #3: The Clever Washable Mug",
+                "zzorp_question": "How many throw-away cups can one washable mug save in a whole year?",
                 "entry_state": "observed",
                 "new_evidence": None,
                 "player_conclusion": None,
@@ -263,29 +263,29 @@ DEMO_PRESETS: dict[str, dict[str, Any]] = {
             "scan_type": "follow_up",
             "people_in_frame": False,
             "visible_facts": [
-                "A printed recycling bin sign lists clean paper, cardboard, cans, and plastic bottles.",
-                "Takeaway coffee cups and food-soiled items are marked as excluded on the label.",
+                "The recycling bin sign says yes to clean paper, cardboard, cans, and plastic bottles.",
+                "The sign says takeaway coffee cups and messy food items are not allowed inside.",
             ],
             "inferences": [
-                "This standard mixed recycling bin does not accept plastic-lined paper coffee cups, though a clean plastic lid may be separated if local rules allow.",
+                "This recycling bin cannot take paper coffee cups because of their thin plastic lining, though a clean plastic lid might be okay.",
             ],
             "missing_information": [
-                "Where the nearest dedicated takeaway cup collection point is located in this building or street.",
+                "Where the nearest special coffee cup recycling bin is located.",
             ],
             "signal_type": "possible_contradiction",
-            "signal_summary": "The follow-up photo of the bin label confirms that plastic-lined paper coffee cups are not accepted in this standard recycling bin.",
+            "signal_summary": "Your follow-up photo of the bin sign proves that takeaway coffee cups are not allowed in this recycling bin!",
             "zzorp_reaction": (
-                "AHA! My antennae are doing a victory wiggle over this close-up of the sorting portal's label! "
-                "That cleared up my biggest mystery: standard mixed recycling here explicitly rejects polymer-lined takeaway cups, though the plastic lid can be separated. "
-                "What do YOU think now, field partner?"
+                "AHA! My antennae are doing a happy dance over your close-up photo of the bin sign! "
+                "That solved my biggest mystery: this bin takes paper, cans, and bottles, but says NO to plastic-lined coffee cups! "
+                "What do YOU think now, detective?"
             ),
             "mission": None,
             "evidence_used": ["EV-003"],
             "notebook_update": {
-                "entry_title": "Specimen #1: The Eight-Minute Vessel",
-                "zzorp_question": "Does this recycling bin actually accept plastic-lined takeaway cups, or does it require a specialist collection point?",
+                "entry_title": "Mystery #1: The Ten-Minute Cup",
+                "zzorp_question": "Does this recycling bin actually take paper coffee cups, or do they need a special cup bin?",
                 "entry_state": "evidence_gathered",
-                "new_evidence": "Bin label inspected: standard mixed recycling accepts paper, cardboard, cans, and bottles, but excludes plastic-lined takeaway cups.",
+                "new_evidence": "Bin sign checked: this bin takes clean paper, cardboard, cans, and bottles, but says no to takeaway coffee cups.",
                 "player_conclusion": None,
             },
         },

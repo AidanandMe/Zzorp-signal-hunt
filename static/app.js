@@ -17,40 +17,40 @@
   const GAME_STORAGE_KEY = "zzorp_game_state_v1";
 
   const WAITING_MESSAGES = [
-    "Scanning specimen…",
-    "Consulting Earth archive…",
-    "Checking whether humans actually know this…",
+    "Looking closely at your photo…",
+    "Checking Zzorp's Earth Fact Book…",
+    "Wiggling antennae and thinking hard…",
   ];
 
   // Deterministic Signal Points table (calculated strictly in app code, never by the model)
   const POINT_EVENTS = {
     first_scan_completed: {
       points: 10,
-      label: "First scan completed",
+      label: "New photo scanned!",
     },
     follow_up_completed: {
       points: 20,
-      label: "Follow-up mission completed",
+      label: "Follow-up mission done!",
     },
     meaningful_new_evidence: {
       points: 15,
-      label: "Meaningful new evidence gathered",
+      label: "Awesome new clue found!",
     },
     new_archive_id_bonus: {
       points: 5,
-      label: "New archive ID cited in follow-up",
+      label: "New Earth fact unlocked!",
     },
     interpretation_revised: {
       points: 10,
-      label: "Zzorp revised interpretation after new evidence",
+      label: "You helped Zzorp figure it out!",
     },
     player_conclusion_saved: {
       points: 15,
-      label: "Player conclusion saved",
+      label: "You shared what you think!",
     },
     positive_signal_bonus: {
       points: 5,
-      label: "Positive signal discovered",
+      label: "Awesome Earth habit spotted!",
     },
   };
 
@@ -60,7 +60,7 @@
       id: "urban_nature_scout",
       icon: "🌱",
       name: "Urban Nature Scout",
-      description: "Completes an urban-nature investigation",
+      description: "Scan a plant, tree, park, or garden clue",
       check: (entries) =>
         entries.some((e) => {
           const ev = e.evidence_used || [];
@@ -82,7 +82,7 @@
       id: "reuse_detective",
       icon: "♻️",
       name: "Reuse Detective",
-      description: "Investigates reuse, repair or recycling",
+      description: "Investigate reusing, fixing, or recycling",
       check: (entries) =>
         entries.some((e) => {
           const ev = e.evidence_used || [];
@@ -110,7 +110,7 @@
       id: "energy_investigator",
       icon: "💡",
       name: "Energy Investigator",
-      description: "Completes an energy-related investigation",
+      description: "Investigate lights, switches, or power",
       check: (entries) =>
         entries.some((e) => {
           const ev = e.evidence_used || [];
@@ -132,7 +132,7 @@
       id: "evidence_hunter",
       icon: "🔍",
       name: "Evidence Hunter",
-      description: "Completes a follow-up that adds new evidence",
+      description: "Bring back a follow-up photo with a new clue",
       check: (entries) =>
         entries.some(
           (e) =>
@@ -145,7 +145,7 @@
       id: "human_habits_expert",
       icon: "🛸",
       name: "Human Habits Expert",
-      description: "Completes 2+ investigations and records player conclusions",
+      description: "Write what you think for 2 or more mysteries",
       check: (entries) =>
         entries.filter(
           (e) =>
@@ -157,32 +157,32 @@
 
   const SIGNAL_META = {
     possible_contradiction: {
-      label: "⚡ Possible contradiction",
+      label: "🤔 Wait… That's Weird!",
       cardClass: "signal-possible_contradiction",
       badgeClass: "badge-possible_contradiction",
     },
     positive_signal: {
-      label: "🌱 Positive signal",
+      label: "🌱 Awesome Earth Habit!",
       cardClass: "signal-positive_signal",
       badgeClass: "badge-positive_signal",
     },
     insufficient_evidence: {
-      label: "🔎 More information needed",
+      label: "🔎 Need One More Clue!",
       cardClass: "signal-insufficient_evidence",
       badgeClass: "badge-insufficient_evidence",
     },
     no_signal: {
-      label: "✨ No signal detected",
+      label: "✨ Just a Normal Earth Thing!",
       cardClass: "signal-no_signal",
       badgeClass: "badge-no_signal",
     },
   };
 
   const ENTRY_STATE_META = {
-    observed: { label: "Observed", pillClass: "state-observed" },
-    question_open: { label: "Question Open", pillClass: "state-question_open" },
-    evidence_gathered: { label: "Evidence Gathered", pillClass: "state-evidence_gathered" },
-    player_concluded: { label: "Player Concluded ✓", pillClass: "state-player_concluded" },
+    observed: { label: "👀 Spotted", pillClass: "state-observed" },
+    question_open: { label: "❓ Mystery Open", pillClass: "state-question_open" },
+    evidence_gathered: { label: "🔎 Clue Found!", pillClass: "state-evidence_gathered" },
+    player_concluded: { label: "⭐ Solved by You!", pillClass: "state-player_concluded" },
   };
 
   // DOM Elements: Navigation, Header Status & Celebration
@@ -773,7 +773,7 @@
     triggerCelebration(
       newlyAwardedEvents,
       newlyUnlockedBadges,
-      "Fascinating human conclusion logged in my Field Notebook!"
+      "Awesome! I saved your answer in our Field Notebook!"
     );
     return entries[idx];
   }
@@ -996,14 +996,14 @@
     const count = list.length;
 
     sourcesCountBadge.textContent =
-      count === 1 ? "1 archive entry cited" : `${count} archive entries cited`;
+      count === 1 ? "1 Earth fact used" : `${count} Earth facts used`;
 
     if (count === 0) {
       sourcesDrawer.open = false;
       const note = document.createElement("p");
       note.className = "no-sources-note";
       note.textContent =
-        "No Earth Evidence Archive entries were needed for this scan — Zzorp relied purely on direct visual observation.";
+        "Zzorp didn't need the Earth Fact Book for this photo — everything was clear just by looking!";
       sourcesContent.appendChild(note);
       return;
     }
@@ -1021,7 +1021,7 @@
 
       const meta = document.createElement("span");
       meta.className = "source-meta-pill";
-      meta.textContent = `Confidence: ${src.confidence || "verified"}`;
+      meta.textContent = `Fact check: ${src.confidence || "verified"}`;
 
       top.appendChild(org);
       top.appendChild(meta);
@@ -1035,7 +1035,7 @@
       link.href = src.url || "#";
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.textContent = "View Earth archive source ↗";
+      link.textContent = "Read Earth fact source ↗";
 
       item.appendChild(top);
       item.appendChild(claim);
@@ -1308,7 +1308,7 @@
         const evBox = document.createElement("div");
         evBox.className = "nb-new-evidence-box";
         const evStrong = document.createElement("strong");
-        evStrong.textContent = "🔬 Follow-up Evidence Gathered:";
+        evStrong.textContent = "🔬 New Clue Found:";
         const evSpan = document.createElement("span");
         evSpan.textContent = entry.new_evidence;
         evBox.appendChild(evStrong);
@@ -1326,7 +1326,7 @@
 
         const mLabel = document.createElement("strong");
         mLabel.style.color = "var(--accent-cyan)";
-        mLabel.textContent = "🚀 Mission:";
+        mLabel.textContent = "🚀 Your Mission:";
         mTop.appendChild(mLabel);
 
         if (entry.mission.ask_an_adult) {
@@ -1347,7 +1347,7 @@
         followBtn.className = "btn btn-secondary btn-small";
         followBtn.textContent = entry.new_evidence
           ? "📷 Upload Another Follow-up Photo"
-          : "📷 Upload Follow-up Photo";
+          : "📷 Upload Follow-up Photo (+20 pts)";
         followBtn.addEventListener("click", () => enterFollowUpMode(entry.id));
         mBox.appendChild(followBtn);
 
@@ -1360,13 +1360,13 @@
 
       const concLabel = document.createElement("label");
       concLabel.className = "nb-conclusion-label";
-      concLabel.textContent = "✏️ YOUR CONCLUSION (WRITTEN BY YOU, NEVER BY ZZORP)";
+      concLabel.textContent = "✏️ WHAT DO YOU THINK? (YOU DECIDE, NOT ZZORP)";
       concArea.appendChild(concLabel);
 
       const textarea = document.createElement("textarea");
       textarea.className = "conclusion-textarea";
       textarea.rows = 2;
-      textarea.placeholder = "Write your own conclusion about this human habit…";
+      textarea.placeholder = "Write what YOU think about this Earth habit…";
       textarea.value = entry.player_conclusion || "";
       concArea.appendChild(textarea);
 
@@ -1376,13 +1376,13 @@
       const saveBtn = document.createElement("button");
       saveBtn.type = "button";
       saveBtn.className = "btn btn-primary btn-small";
-      saveBtn.textContent = "💾 Save Conclusion";
+      saveBtn.textContent = "💾 Save My Answer (+15 pts)";
 
       const savedNote = document.createElement("span");
       savedNote.className = `conclusion-saved-note ${
         entry.player_conclusion ? "" : "hidden"
       }`;
-      savedNote.textContent = "✓ Concluded by field partner";
+      savedNote.textContent = "⭐ Solved by you!";
 
       saveBtn.addEventListener("click", () => {
         const updated = savePlayerConclusion(entry.id, textarea.value);

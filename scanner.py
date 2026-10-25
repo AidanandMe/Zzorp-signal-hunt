@@ -154,19 +154,21 @@ def _build_pass1_prompt(scan_type: str, previous_entry: dict[str, Any] | None) -
             "   - Sentence 1: An excited 'AHA!' reaction to the field partner's new photo;\n"
             "   - Sentence 2: What the new evidence changed or clarified in your thinking;\n"
             "   - Sentence 3: A fun question handing the conclusion back to the player, such as 'What do YOU think now, field partner?'\n"
-            "6. Never conclude for the player, never invent facts or contradictions, and never mention points or scores.\n"
-            "7. Keep your Pass 1 notes brief (short bullet points under 60 words); Pass 2 will produce the final JSON."
+            "6. Write all text for a 7-11 year old child: use short sentences and simple everyday words (avoid big academic jargon).\n"
+            "7. Never conclude for the player, never invent facts or contradictions, and never mention points or scores.\n"
+            "8. Keep your Pass 1 notes brief (short bullet points under 60 words); Pass 2 will produce the final JSON."
         )
     return (
         "FIRST SCAN (scan_type must be 'first_scan').\n"
         "Instructions:\n"
         "1. Observe only what is directly visible in this photo (`visible_facts`).\n"
-        "2. Separate interpretations into `inferences`, phrased as possibilities.\n"
+        "2. Separate interpretations into `inferences`, phrased as possibilities ('maybe...', 'it might be...').\n"
         "3. Classify honestly (`possible_contradiction`, `positive_signal`, `insufficient_evidence`, or `no_signal`). "
         "Remember: `no_signal` and `insufficient_evidence` are good, valid answers — never invent a problem.\n"
         "4. If any environmental fact, figure, law, or recycling rule might apply, call `lookup_evidence` first. "
         "Never state an environmental fact without calling `lookup_evidence`.\n"
-        "5. Keep your Pass 1 notes brief (short bullet points under 60 words); Pass 2 will produce the final JSON."
+        "5. Write all text for a 7-11 year old child: use short sentences and simple everyday words.\n"
+        "6. Keep your Pass 1 notes brief (short bullet points under 60 words); Pass 2 will produce the final JSON."
     )
 
 
@@ -203,7 +205,10 @@ def _build_pass2_verification_prompt(
         "4. If `people_in_frame` is true, ignore the person completely (do not describe them, their clothes, food, or actions).\n"
         "5. `evidence_used` may ONLY contain IDs from the retrieved evidence entries above that your response actually relies on.\n"
         f"6. {state_rule}\n"
-        "7. Respond ONLY with valid JSON matching the required response schema."
+        "7. KID-FRIENDLY LANGUAGE (AGES 7-11): Keep every sentence short, clear, and easy for a 7-11 year old to read. "
+        "Use simple everyday words instead of hard academic words (for example, say 'thin plastic layer' instead of 'waterproof polymer lining', "
+        "and 'recycling bin rules' instead of 'waste sorting infrastructure'). Keep each bullet in `visible_facts`, `inferences`, and `missing_information` to 1 short sentence.\n"
+        "8. Respond ONLY with valid JSON matching the required response schema."
     )
     if retry_error:
         prompt += (

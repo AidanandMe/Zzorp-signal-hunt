@@ -232,20 +232,20 @@
             <div class="radar-sweep"></div>
             <div class="radar-dot"></div>
           </div>
-          <p id="waitingMessage" class="waiting-status">Scanning specimen…</p>
+          <p id="waitingMessage" class="waiting-status">Looking closely at your photo…</p>
           <div class="waiting-steps" aria-hidden="true">
             <span class="wait-dot active" id="waitDot0"></span>
             <span class="wait-dot" id="waitDot1"></span>
             <span class="wait-dot" id="waitDot2"></span>
           </div>
-          <p class="waiting-sub">Zzorp is inspecting your photo and checking the Earth Archive…</p>
+          <p class="waiting-sub">Zzorp is looking closely at your photo and checking the Earth Fact Book…</p>
         </div>
 
         <!-- Friendly In-Character Error Banner -->
         <div id="errorCard" class="error-card hidden" role="alert">
           <div class="error-icon">🛸</div>
           <div class="error-body">
-            <h3>Scanner Interference!</h3>
+            <h3>Oops! Zzorp's Scanner Fizzled!</h3>
             <p id="errorText"></p>
           </div>
         </div>
@@ -255,8 +255,8 @@
       <section id="resultsScreen" class="panel results-panel hidden" aria-labelledby="resultsHeading">
         <div class="results-top-bar">
           <div class="specimen-title-row">
-            <h2 id="resultsHeading" class="specimen-title">Specimen Analysis</h2>
-            <span id="resultEntryStatePill" class="entry-state-pill">Observed</span>
+            <h2 id="resultsHeading" class="specimen-title">What Zzorp Found</h2>
+            <span id="resultEntryStatePill" class="entry-state-pill">👀 Spotted</span>
           </div>
           <div class="results-top-actions">
             <button id="newScanBtn" type="button" class="btn btn-outline btn-small">
@@ -302,8 +302,8 @@
         <div id="missionCard" class="result-card mission-card hidden">
           <div class="mission-header">
             <div>
-              <div class="card-eyebrow">🚀 NEXT STEP • EARN +20 SIGNAL POINTS</div>
-              <h3 class="mission-title">Help Zzorp Solve This Mystery!</h3>
+              <div class="card-eyebrow">🚀 YOUR MISSION • EARN +20 POINTS</div>
+              <h3 class="mission-title">Help Zzorp Find the Missing Clue!</h3>
             </div>
             <span id="askAdultBadge" class="ask-adult-badge hidden">
               🤝 Ask an adult
@@ -323,7 +323,7 @@
 
         <!-- PLAYER CONCLUSION BOX (Player-owned — never written by AI) -->
         <div id="resultConclusionCard" class="result-card conclusion-card">
-          <div class="card-eyebrow">✏️ YOUR CONCLUSION • EARN +15 SIGNAL POINTS</div>
+          <div class="card-eyebrow">✏️ WHAT DO YOU THINK? • EARN +15 POINTS</div>
           <p id="resultZzorpQuestion" class="conclusion-question"></p>
           <textarea
             id="resultConclusionInput"
@@ -333,10 +333,10 @@
           ></textarea>
           <div class="conclusion-actions">
             <button id="saveResultConclusionBtn" type="button" class="btn btn-primary btn-small">
-              💾 Save My Conclusion (+15 pts)
+              💾 Save My Answer (+15 pts)
             </button>
             <span id="resultConclusionSavedNote" class="conclusion-saved-note hidden">
-              ✓ Saved to your Field Notebook!
+              ✓ Saved in your Notebook!
             </span>
           </div>
         </div>
@@ -345,29 +345,29 @@
         <details id="cluesDrawer" class="result-card clues-drawer">
           <summary class="sources-summary">
             <div class="sources-summary-left">
-              <span class="card-eyebrow">🔍 SEE ZZORP'S SCANNER CLUES</span>
-              <span class="sources-count-badge">What I see • What I guess • What's missing</span>
+              <span class="card-eyebrow">🔍 SEE ZZORP'S CLUE NOTES</span>
+              <span class="sources-count-badge">What I can see • My best guesses • What I still don't know</span>
             </div>
             <span class="drawer-chevron" aria-hidden="true">▾</span>
           </summary>
           <div class="clues-drawer-body">
             <div class="observation-grid">
               <div class="result-card obs-card">
-                <div class="card-eyebrow">👁️ WHAT I CAN SEE</div>
-                <p class="card-helper">Directly visible facts in the photo</p>
+                <div class="card-eyebrow">👁️ WHAT ZZORP CAN SEE</div>
+                <p class="card-helper">Things anyone can spot right in the photo</p>
                 <ul id="visibleFactsList" class="fact-list"></ul>
               </div>
 
               <div class="result-card inference-card">
-                <div class="card-eyebrow">🔍 POSSIBLE INTERPRETATION</div>
-                <p class="card-helper">Plausible guesses from what is visible</p>
+                <div class="card-eyebrow">💭 ZZORP'S BEST GUESSES</div>
+                <p class="card-helper">What might be happening — just guesses, not sure yet!</p>
                 <ul id="inferencesList" class="fact-list"></ul>
               </div>
             </div>
 
             <div class="result-card missing-info-card">
-              <div class="card-eyebrow">❓ WHAT I STILL DON'T KNOW</div>
-              <p class="card-helper">Details not visible in this single photo</p>
+              <div class="card-eyebrow">❓ WHAT ZZORP STILL DOESN'T KNOW</div>
+              <p class="card-helper">Clues we can't see from this one photo</p>
               <ul id="missingInfoList" class="fact-list"></ul>
             </div>
           </div>
@@ -377,8 +377,8 @@
         <details id="sourcesDrawer" class="result-card sources-drawer">
           <summary class="sources-summary">
             <div class="sources-summary-left">
-              <span class="card-eyebrow">📚 ZZORP'S EARTH ARCHIVE SOURCES</span>
-              <span id="sourcesCountBadge" class="sources-count-badge">0 archive entries cited</span>
+              <span class="card-eyebrow">📚 EARTH FACT SOURCES</span>
+              <span id="sourcesCountBadge" class="sources-count-badge">0 facts used</span>
             </div>
             <span class="drawer-chevron" aria-hidden="true">▾</span>
           </summary>
@@ -407,7 +407,7 @@
           <div>
             <h2 id="notebookHeading" class="specimen-title">My Field Notebook</h2>
             <p class="panel-subtext">
-              Collect Signal Points, unlock badges, and write your own conclusions!
+              Earn points, unlock badges, and write what YOU think!
             </p>
           </div>
           <button id="clearNotebookBtn" type="button" class="btn btn-outline btn-small">
@@ -423,7 +423,7 @@
                 <use href="#zzorpSticker" />
               </svg>
               <div>
-                <span class="card-eyebrow">🏆 FIELD PARTNER REWARDS</span>
+                <span class="card-eyebrow">🏆 MY BADGES & POINTS</span>
                 <h3 class="nb-progress-title">
                   ⚡ <span id="nbTotalPoints">0</span> Signal Points
                 </h3>
@@ -439,7 +439,7 @@
               <use href="#zzorpSticker" />
             </svg>
           </div>
-          <h3>Your Field Notebook is empty!</h3>
+          <h3>Your Notebook is empty!</h3>
           <p>Snap a photo of an everyday object to start your first mystery with Zzorp.</p>
           <button id="goToScannerFromEmptyBtn" type="button" class="btn btn-primary">
             📸 Scan Something Now
@@ -451,7 +451,7 @@
     </main>
 
     <footer class="site-footer">
-      <p>Zzorp observes. You investigate. The conclusions are yours.</p>
+      <p>Zzorp spots the clues. You solve the mystery. You decide what to think!</p>
     </footer>
   </div>
 
