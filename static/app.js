@@ -210,6 +210,8 @@
   const notebookScreen = document.getElementById("notebookScreen");
 
   // Screen 1 Elements
+  const zzorpWelcomeBubble = document.getElementById("zzorpWelcomeBubble");
+  const welcomeSpeakBtn = document.getElementById("welcomeSpeakBtn");
   const howItWorksStrip = document.getElementById("howItWorksStrip");
   const scannerStepTag = document.getElementById("scannerStepTag");
   const scannerHeading = document.getElementById("scannerHeading");
@@ -1025,6 +1027,9 @@
      ========================================================================= */
 
   function startWaitingAnimation() {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
     let idx = 0;
     waitingSeconds = 0;
     if (waitingTimerBadge) {
@@ -1102,6 +1107,7 @@
     scanBtn.disabled = true;
     hideError();
 
+    if (zzorpWelcomeBubble) zzorpWelcomeBubble.classList.add("hidden");
     if (howItWorksStrip) howItWorksStrip.classList.add("hidden");
     if (scannerStepTag) {
       scannerStepTag.textContent = "FOLLOW-UP MISSION";
@@ -1122,6 +1128,7 @@
 
   function exitFollowUpMode() {
     activeFollowUpEntryId = null;
+    if (zzorpWelcomeBubble) zzorpWelcomeBubble.classList.remove("hidden");
     if (howItWorksStrip) howItWorksStrip.classList.remove("hidden");
     if (scannerStepTag) scannerStepTag.classList.add("hidden");
     scannerHeading.textContent = "What should Zzorp scan today?";
@@ -1780,6 +1787,13 @@
       if (zzorpReaction && zzorpReaction.textContent) {
         speakZzorpText(zzorpReaction.textContent);
       }
+    });
+  }
+  if (welcomeSpeakBtn) {
+    welcomeSpeakBtn.addEventListener("click", () => {
+      speakZzorpText(
+        "Beep-boop! I'm Zzorp from outer space — take a photo of a cup, bin, wrapper, plant or something around you, and let's hunt for Earth clues together!"
+      );
     });
   }
 

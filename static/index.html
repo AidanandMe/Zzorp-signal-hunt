@@ -141,6 +141,21 @@
 
       <!-- SCREEN 1: SIGNAL SCANNER -->
       <section id="scannerScreen" class="panel scanner-panel" aria-labelledby="scannerHeading">
+        <!-- Zzorp 1-Sentence Welcome Speech Bubble -->
+        <div id="zzorpWelcomeBubble" class="zzorp-welcome-bubble" role="region" aria-label="Welcome from Zzorp">
+          <div class="zzorp-welcome-body">
+            <svg class="zzorp-sticker-inline" viewBox="0 0 100 100" width="38" height="38" aria-hidden="true">
+              <use href="#zzorpSticker" />
+            </svg>
+            <p id="zzorpWelcomeText" class="zzorp-welcome-text">
+              <strong>💬 Zzorp says:</strong> "Beep-boop! I'm Zzorp from outer space — take a photo of a cup, bin, wrapper, plant or something around you, and let's hunt for Earth clues together!"
+            </p>
+          </div>
+          <button id="welcomeSpeakBtn" type="button" class="btn-speak" title="Hear Zzorp's welcome message aloud">
+            🔊 Hear Zzorp
+          </button>
+        </div>
+
         <!-- 3-Step Visual Onboarding Strip -->
         <div id="howItWorksStrip" class="how-it-works-strip" aria-label="How to play">
           <div class="how-step">
